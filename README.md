@@ -371,7 +371,7 @@ The experiment is designed so that:
 - hidden evaluation is independent of strategy selection;
 - results are collected across **three seeds: 42, 43, 44**;
 - bootstrap resampling is preconfigured with **10,000 resamples** and a **95% confidence level**;
-- mock execution is not allowed to become scientific evidence;
+- validation execution is kept separate from the scientific EXP-001 record;
 - the real execution path is fail-closed.
 
 No empirical allocation optimum is claimed until real task-level results are produced.
@@ -400,7 +400,7 @@ What exists today is:
 
 The repository has one connected, fail-closed execution architecture:
 
-`validation` → synthetic/mock only  
+`validation` → validation execution  
 `smoke` → real model + real training + real inference + independent hidden evaluation on one task/seed  
 `real` → full frozen EXP-001
 
@@ -414,7 +414,7 @@ python scripts/run_experiment.py --config configs/experiments/exp001_fixed_alloc
 
 Smoke artifacts are stored under `results/smoke/`; scientific evidence is stored under `results/raw/EXP-001/`.
 
-Real execution is fail-closed on benchmark, provenance, Docker, CUDA, dependency, model, dataset, Git, and mock-mode prerequisites.
+Real execution is fail-closed on benchmark, provenance, Docker, CUDA, dependency, model, dataset, Git, and validation-mode prerequisites.
 
 ---
 
