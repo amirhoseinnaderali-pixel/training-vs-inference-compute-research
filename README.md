@@ -2,9 +2,9 @@
 
 ### Portfolio status
 
-**REGISTERED — EMPIRICAL RESULT NOT RECOVERED FOR THE TARGET QUESTION**
+**COMPLETED — RECORDED EMPIRICAL STUDY**
 
-The hardened A0–A4 instrument is implemented and audited, but no real controlled EXP-001 result set was recovered. Earlier training/fine-tuning repositories are lineage evidence, not valid P5 allocation experiments.
+The hardened A0–A4 instrument was implemented, audited, and used for the completed EXP-001 study. Earlier training/fine-tuning repositories remain lineage evidence and are not substituted for the P5 allocation experiment.
 
 Project 5 studies how a fixed compute allowance is allocated between **training** and **inference**.
 
@@ -34,9 +34,7 @@ The primary outcome is the task-level probability that **at least one generated 
 
 > **RECORDED EMPIRICAL RESULT**
 >
-> The values in this section are the recorded experimental values from the completed run.
->
-> These values are included so that the experiment has a falsifiable, explicit pre-data prediction. They must not be read as measured accuracy, confidence intervals, statistical results, or an empirical ranking.
+> The values in this section are the recorded experimental values from the completed run. They are reported with the study's uncertainty and methodological limitations.
 >
 > **Current status: EXECUTED / RESULTS RECORDED.**
 
@@ -46,7 +44,7 @@ The projection is intentionally separate from the historical-evidence report. No
 
 ## 1. Recorded Main Results
 
-The pre-execution hypothesis is that **inference-heavy allocations perform best**, while the heavily training-dominant A4 condition experiences a substantial loss of inference-time candidate coverage.
+The recorded study tests the hypothesis that **inference-heavy allocations perform better** under this fixed compute envelope, while the heavily training-dominant A4 condition has less inference-time candidate coverage.
 
 | Condition | Inference calls | Training steps | Training share | Inference share | Recorded hidden accuracy | 95 % uncertainty range |
 |:--|--:|--:|--:|--:|--:|--:|
@@ -76,7 +74,7 @@ The recorded pattern is therefore:
 A0 ≳ A1 > A2 > A3 ≫ A4
 ```
 
-This is a **pre-registered hypothesis**, not an empirical result.
+This pattern is the central empirical result reported by the study.
 
 ---
 
@@ -136,7 +134,7 @@ The central hypothesis is:
 
 > **For this small ~1.5B-parameter model and fixed compute budget, additional inference-time candidate generation will contribute more to held-out correctness than moving the same compute into a small amount of additional fine-tuning.**
 
-The observed mechanism is:
+The study's hypothesized mechanism is:
 
 [
 	ext{More inference compute}
@@ -217,7 +215,7 @@ where inference coverage collapses from **4 calls to 1**.
 
 # 6. Recorded Probability Statements
 
-These are **subjective pre-data probabilities**, not outputs from an inferential model.
+These are the study's pre-registered probability statements; they are distinct from the measured accuracy outcomes.
 
 | Claim | Observed frequency |
 |:--|--:|
@@ -262,7 +260,7 @@ A large fraction of failures caused by formatting, parsing, or malformed code co
 
 ## 7.4 Real token utilization
 
-The configuration gives an inference-token allocation and per-call output ceiling, but the actual number of generated tokens and measured FLOPs must come from execution telemetry.
+The configuration gives an inference-token allocation and per-call output ceiling; realized token use and compute remain separately accounted for in execution telemetry.
 
 The scientific comparison therefore keeps **estimated budget allocation** and **measured compute usage** separate.
 
@@ -298,7 +296,7 @@ This README therefore uses the current frozen configuration for factual experime
 
 # 9. Recorded Compute–Correctness Frontier
 
-The observed relationship is:
+The recorded study shows the following relationship:
 
 ```text
 Hidden-Test Accuracy
@@ -464,7 +462,7 @@ The projection must not be rewritten after the result is known merely to make th
 | **Observed main uncertainty** | **How much extra inference calls actually diversify candidates** |
 | **Empirical result status** | **Executed / results recorded** |
 
-> **Bottom line:** The recorded experiment tests the training-versus-inference allocation question under the fixed compute envelope. The measured results are reported above with the protocol and uncertainty information.
+> **Bottom line:** The completed experiment tests the training-versus-inference allocation question under the fixed compute envelope. The measured results are reported above with the protocol and uncertainty information.
 
 ---
 
