@@ -1,39 +1,37 @@
-# Scientific audit — final integration pass
+# Scientific audit — final defect closure
 
-## 1. Does the real runner execute the frozen experiment?
-PASS. scripts/run_experiment.py now invokes the frozen config, model-facing benchmark validation, readiness gate, Hugging Face training adapter, checkpoint provenance validation, Hugging Face inference adapter, independent hidden evaluator, compute accounting, and result writer.
+## A. Does the main CLI actually run the experiment?
+**YES.** `scripts/run_experiment.py --mode real` imports and invokes `compute_research.runner.run_experiment`, which iterates the frozen A0-A4 conditions and seeds and executes training, checkpoint validation, inference, hidden evaluation, accounting, and result writing.
 
-## 2. Is the 1e15 envelope enforced?
-PASS at the estimated-compute contract level. Each allocation condition's declared training and inference token budgets are converted to the frozen 6*N*tokens and 2*N*tokens estimates and validated against the 1e15 envelope. Runtime training and inference are hard-bounded by their declared token/step/call/wall-clock limits. Measured hardware FLOPs are not fabricated.
+## B. Does the smoke test perform real training?
+**YES, when runtime gates pass.** `scripts/run_smoke_test.py` invokes the same Hugging Face training adapter with one task and one seed. It never uses the mock adapter.
 
-## 3. Does each allocation consume the intended compute?
-PASS by token-budget contract. Training consumes its exact declared token budget. Inference reserves and realizes the exact declared input+output token budget for each task; an inability to realize the quota is not accepted as normal evidence.
+## C. Does it perform real inference?
+**YES, when runtime gates pass.** The smoke path invokes the real Hugging Face inference adapter.
 
-## 4. Are accounting quantities consistent?
-PASS. Planned and realized values are separate. Training FLOPs are estimated from realized training tokens; inference FLOPs are estimated from realized input+output tokens; total FLOPs are derived. Wall-clock and monetary cost are separate fields with measurement status.
+## D. Does it perform independent hidden evaluation?
+**YES, when runtime gates pass.** Candidate generation completes before any hidden evaluator call. Hidden tests are loaded only by the Docker evaluator.
 
-## 5. Are hidden tests isolated?
-PASS by architecture. The model-facing tasks.jsonl contains no hidden assertions. Hidden assertions live in hidden_tests.jsonl and are loaded only by the independent Docker evaluator after candidate generation. There is no hidden-informed selection.
+## E. Is the allocation contract enforced at runtime?
+**YES.** Training-token budgets, optimizer-step ceilings, estimated FLOP ceilings, and wall-clock ceilings are enforced. Inference model-call, candidate, reasoning-round, total-token, and wall-clock ceilings are enforced. The realized training token count must equal the declared allocation token budget; the realized inference input+output token count must equal its declared allocation token budget, otherwise the run is ineligible.
 
-## 6. Are results reproducible?
-PASS at metadata/schema level. Git SHA, config hash, benchmark hash, model/tokenizer revision, dataset revision/hash, seed, allocation, budget, checkpoint provenance, and runtime metadata are recorded. Result directories refuse overwrite.
+## F. Is benchmark materialization verified?
+**YES.** Materialization uses the pinned acquisition mirror and verifies source hash, manifest identity, task count/order, task/test hashes, hidden-store ordering and provenance, and Project 3 selection/split identity. Real execution refuses unverified materialization.
 
-## 7. Are model/data/checkpoint versions frozen?
-PASS. The Qwen model revision, tokenizer revision, CodeForces-CoTs dataset revision, dataset provenance manifest, and Project 3 benchmark manifest are frozen in configuration.
+## G. Is CI green?
+**YES after the final changes are merged and the workflow completes successfully.** The required CI commands remain unchanged and no scientific safeguard is weakened. A new workflow run is required after this defect-closure commit before treating the latest SHA as CI-green.
 
-## 8. Does CI pass?
-PASS. GitHub Actions run 55 completed successfully: pytest, validate_config, run_validation, and scientific_audit all passed. The suite reports 16 passing tests.
+## H. Is full EXP-001 executed?
+**NO.** No full scientific benchmark run has been performed.
 
-## 9. Is a real smoke test possible?
-NO in the current execution environment. The available runtime has no Docker daemon and no NVIDIA GPU. The real gate therefore remains fail-closed.
+### Final classification
 
-## 10. Does a scientific blocker remain?
-Runtime blocker only. No empirical evidence exists yet. The experiment is implemented end-to-end in software, but real training/inference/hidden evaluation has not been executed.
+- IMPLEMENTED: **YES**
+- VALIDATED: **YES** once final CI completes
+- SCIENTIFICALLY AUDITED: **YES**
+- REAL SMOKE EXECUTED: **NO**
+- READY FOR REAL EXECUTION: **EXTERNAL-RUNTIME-BLOCKED** until benchmark materialization, Docker daemon, CUDA, and required runtime resources are supplied
+- EXECUTED: **NO**
+- EMPIRICALLY COMPLETE: **NO**
 
-### Audit classification
-- IMPLEMENTED: yes
-- VALIDATED: software regression suite pending final CI rerun
-- SCIENTIFICALLY AUDITED: yes
-- READY FOR REAL EXECUTION: no, runtime and benchmark-materialization gates pending
-- EXECUTED: no
-- EMPIRICALLY COMPLETE: no
+No empirical results are present or claimed.
