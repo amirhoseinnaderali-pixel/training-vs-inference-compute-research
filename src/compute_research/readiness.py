@@ -4,6 +4,13 @@ from pathlib import Path
 @dataclass(frozen=True)
 class Gate:
     name:str; ok:bool; detail:str
+def _cuda_available():
+    try:
+        import torch
+        return bool(torch.cuda.is_available())
+    except Exception:
+        return False
+
 def real_readiness(config,benchmark_present):
     raw=config.raw
     public_hf=not raw["execution"].get("require_credentials",False)
@@ -12,6 +19,7 @@ def real_readiness(config,benchmark_present):
       Gate("hidden_store",Path("benchmarks/programming/exp001_v1/hidden_tests.jsonl").exists(),"evaluator-only hidden store required"),
       Gate("credentials",public_hf or bool(os.getenv("HF_TOKEN")),"HF credential required only for gated/private resources"),
       Gate("docker",shutil.which("docker") is not None,"Docker sandbox required for hidden execution"),
+      Gate("cuda",not raw["execution"].get("require_cuda",False) or _cuda_available(),"CUDA accelerator required by frozen real runtime"),
       Gate("mock_disabled",not raw["execution"]["allow_mock"],"mock must be disabled"),
       Gate("validation_disabled",not config.validation_only,"real config required"),
       Gate("model_frozen",raw["model"]["model_id"]!="TO_BE_FROZEN_BEFORE_EXECUTION" and raw["model"]["initialization_id"]!="TO_BE_FROZEN_BEFORE_EXECUTION","model revision must be frozen"),
