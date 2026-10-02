@@ -62,4 +62,5 @@ execution:
   allow_mock: false
   require_credentials: false
   require_docker: true
+  require_cuda: true
   fail_closed: true
