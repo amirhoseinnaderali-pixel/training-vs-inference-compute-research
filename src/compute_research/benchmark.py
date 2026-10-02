@@ -65,3 +65,32 @@ def synthetic_validation_benchmark():
     b=Benchmark("synthetic-4-v1","1.0",tasks,"synthetic-manifest","synthetic-source","validation only")
     b.assert_integrity(4)
     return b
+
+
+def verify_materialized(path:Path, hidden_path:Path, manifest_path:Path)->None:
+    manifest=json.loads(manifest_path.read_text())
+    rows=[json.loads(x) for x in path.read_text().splitlines() if x.strip()]
+    hidden_rows=[json.loads(x) for x in hidden_path.read_text().splitlines() if x.strip()]
+    expected=manifest["tasks"]
+    if len(rows)!=manifest["task_count"] or len(hidden_rows)!=manifest["task_count"]:
+        raise ValueError("materialized benchmark/hidden store count mismatch")
+    if [r.get("task_id") for r in rows] != [e["task_id"] for e in expected]:
+        raise ValueError("materialized benchmark ordering differs from frozen manifest")
+    if [r.get("task_id") for r in hidden_rows] != [e["task_id"] for e in expected]:
+        raise ValueError("hidden store ordering differs from frozen manifest")
+    hmap={r["task_id"]:r for r in hidden_rows}
+    for row,spec in zip(rows,expected):
+        if "hidden_tests" in row:
+            raise ValueError("hidden tests leaked into model-facing benchmark")
+        if row.get("task_sha256")!=spec["task_sha256"] or row.get("test_sha256")!=spec["test_sha256"]:
+            raise ValueError(f"{row['task_id']}: model-facing hash mismatch")
+        h=hmap[row["task_id"]]
+        if h.get("test_sha256")!=spec["test_sha256"] or not h.get("hidden_tests","").strip():
+            raise ValueError(f"{row['task_id']}: hidden-test provenance mismatch")
+    if manifest["provenance"]["canonical_source"]!="openai/human-eval":
+        raise ValueError("unexpected canonical benchmark source")
+    if manifest["provenance"]["source_commit"]!="6d43fb980f9fee3c892a914eda09951f772ad10d":
+        raise ValueError("unexpected canonical source commit")
+    mirror=manifest["provenance"]["acquisition_mirror"]
+    if mirror["repository"]!="nerdskingcom/gguf-humaneval-benchmark" or mirror["branch_sha"]!="7e5a3ceb7b8ab4d94714098fad566ef4c487a605":
+        raise ValueError("unexpected pinned acquisition mirror")
