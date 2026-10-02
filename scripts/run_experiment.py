@@ -9,7 +9,7 @@ def main():
     a=p.parse_args()
     if a.mode=="validation":
         from run_validation import main as validation_main
-        validation_main()
+        validation_main(a.config)
         return
     cfg=load_config(a.config)
     if cfg.validation_only or cfg.raw["execution"]["allow_mock"]:
