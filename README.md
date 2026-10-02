@@ -2,14 +2,26 @@
 
 Project 5 studies how a fixed compute allowance is allocated between training and inference.
 
-Scientific question: under a fixed total compute envelope, how does shifting compute between additional training and additional inference-time computation affect objective held-out correctness?
+## Execution
 
-STATUS: PROJECT 5 IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / NOT EXECUTED.
+The repository has one connected, fail-closed execution architecture:
 
-The real EXP-001 runner now executes the frozen pipeline end-to-end: benchmark integrity gate -> budgeted Hugging Face training -> provenance-validated checkpoint -> budgeted inference -> independent hidden evaluation -> compute accounting -> immutable result artifact.
+`validation` → synthetic/mock only  
+`smoke` → real model + real training + real inference + independent hidden evaluation on one task/seed  
+`real` → full frozen EXP-001
 
-The allocation contract is enforced at the experimental-unit level (task x seed x condition). Training-token budget is primary; inference input+output token budget is primary. The 1e15 envelope is an estimated-FLOP contract and never substitutes for measured hardware quantities.
+Main commands:
 
-CI: GitHub Actions run 55 passed 16 regression tests plus config validation, validation-only execution, and scientific audit.
+```bash
+python scripts/run_experiment.py --config configs/experiments/exp001_fixed_allocation.yaml --mode validation
+python scripts/run_smoke_test.py
+python scripts/run_experiment.py --config configs/experiments/exp001_fixed_allocation.yaml --mode real
+```
 
-Real execution remains fail-closed until the frozen 100-task benchmark is materialized and the required Docker + CUDA runtime is available. No empirical result is claimed.
+Smoke artifacts are stored under `results/smoke/`; scientific evidence is stored under `results/raw/EXP-001/`.
+
+Real execution is fail-closed on benchmark, provenance, Docker, CUDA, dependency, model, dataset, Git, and mock-mode prerequisites.
+
+STATUS: **PROJECT 5 IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / NOT EXECUTED.**
+
+The frozen A0-A4 allocation matrix is unchanged. No empirical result is claimed.
