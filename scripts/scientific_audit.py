@@ -15,6 +15,9 @@ checks=[
  Path("benchmarks/manifests/exp001_v1.json").exists(),
  Path("src/compute_research/runner.py").read_text().find("HuggingFaceSFTAdapter")>=0,
  Path("src/compute_research/runner.py").read_text().find("HuggingFaceInferenceAdapter")>=0,
+ Path("scripts/run_experiment.py").read_text().find("run_experiment")>=0,
+ Path("scripts/run_smoke_test.py").read_text().find("run_smoke")>=0,
+ Path("src/compute_research/runner.py").read_text().find("verify_materialized")>=0,
 ]
 for name,ok in zip(["frozen_matrix","condition_order","allocation_sum","hidden_isolation","final_selection_isolation","mock_blocked","fail_closed","public_hf_credential_policy","dataset_provenance","benchmark_manifest","real_training_adapter","real_inference_adapter","cli_runner","smoke_entrypoint","materialization_gate"],checks): print("PASS" if ok else "FAIL",name)
 raise SystemExit(0 if all(checks) else 1)
