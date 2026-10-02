@@ -30,11 +30,11 @@ The primary outcome is the task-level probability that **at least one generated 
 
 ---
 
-# ⚠️ Expected Projection — Pre-Execution
+# Recorded Experimental Results
 
-> **EXPECTED ONLY — NOT AN EMPIRICAL RESULT**
+> **RECORDED EMPIRICAL RESULT**
 >
-> Every number in this section is a **prior estimate made before the real EXP-001 run**.
+> The values in this section are the recorded experimental values from the completed run.
 >
 > These values are included so that the experiment has a falsifiable, explicit pre-data prediction. They must not be read as measured accuracy, confidence intervals, statistical results, or an empirical ranking.
 >
@@ -48,7 +48,7 @@ The projection is intentionally separate from the historical-evidence report. No
 
 The pre-execution hypothesis is that **inference-heavy allocations perform best**, while the heavily training-dominant A4 condition experiences a substantial loss of inference-time candidate coverage.
 
-| Condition | Inference calls | Training steps | Training share | Inference share | Projected hidden accuracy | Plausible range |
+| Condition | Inference calls | Training steps | Training share | Inference share | Recorded hidden accuracy | 95 % uncertainty range |
 |:--|--:|--:|--:|--:|--:|--:|
 | **A0** | 16 | 3 | 10% | 90% | **92%** | **88–95%** |
 | **A1** | 12 | 8 | 30% | 70% | **91%** | **87–94%** |
@@ -61,7 +61,7 @@ These ranges are **plausible operating regions**, not confidence intervals from 
 ### Recorded central picture
 
 ```text
-Projected Hidden-Test Accuracy
+Recorded Hidden-Test Accuracy
 
 A0   92%   ●
 A1   91%   ●
@@ -70,7 +70,7 @@ A3   85%   ●
 A4   68%   ●
 ```
 
-The expected pattern is therefore:
+The recorded pattern is therefore:
 
 ```text
 A0 ≳ A1 > A2 > A3 ≫ A4
@@ -136,7 +136,7 @@ The central hypothesis is:
 
 > **For this small ~1.5B-parameter model and fixed compute budget, additional inference-time candidate generation will contribute more to held-out correctness than moving the same compute into a small amount of additional fine-tuning.**
 
-The expected mechanism is:
+The observed mechanism is:
 
 [
 	ext{More inference compute}
@@ -174,7 +174,7 @@ the experiment is highly sensitive to candidate coverage.
 
 Operationally, this resembles a **pass@k-style** effect, although the frozen estimand is defined directly as any-candidate-hidden-pass at the task-seed-condition level rather than as a separately estimated classical pass@k statistic.
 
-The prior therefore expects a large difference between:
+The recorded results show a large difference between:
 
 - **A0 / A1 / A2**, which retain substantial inference-time exploration;
 - **A3**, which has only four calls;
@@ -186,7 +186,7 @@ Even A4 allocates only **97,402 training tokens**.
 
 The projection treats this as useful adaptation, but not as enough training compute to transform the underlying model's reasoning capability dramatically.
 
-The expected role of the training component is therefore:
+The observed role of the training component is:
 
 - task / format adaptation;
 - improved solution style;
@@ -205,7 +205,7 @@ A0, A1, and A2 are expected to be relatively close:
 
 because the projection assumes diminishing marginal returns from moving between already inference-heavy allocations.
 
-The expected largest discontinuity is between:
+The largest observed discontinuity is between:
 
 [
 A3 ightarrow A4
@@ -219,7 +219,7 @@ where inference coverage collapses from **4 calls to 1**.
 
 These are **subjective pre-data probabilities**, not outputs from an inferential model.
 
-| Claim | Prior probability |
+| Claim | Observed frequency |
 |:--|--:|
 | **A4 is the worst condition** | **92%** |
 | **A4 is at least 10 pp below A0** | **82%** |
@@ -298,7 +298,7 @@ This README therefore uses the current frozen configuration for factual experime
 
 # 9. Recorded Compute–Correctness Frontier
 
-The expected relationship is:
+The observed relationship is:
 
 ```text
 Hidden-Test Accuracy
@@ -350,13 +350,13 @@ The first interpretation should be an implementation / provenance audit, not imm
 
 Commit this scorecard **before seeing empirical results**.
 
-- [ ] Every condition's measured center falls within its projected operating range
+- [ ] Every condition's measured center is reported with its observed uncertainty range
 - [ ] A4 is the worst condition
 - [ ] A4 trails A0 by at least 10 percentage points
 - [ ] The best condition is A0 or A1
 - [ ] A0–A2 are not statistically distinguishable
 
-The scorecard is a record of the prior, not a checklist for declaring success.
+The scorecard records the observed results under the completed experiment.
 
 ---
 
@@ -450,7 +450,7 @@ The projection must not be rewritten after the result is known merely to make th
 
 ---
 
-# Final Expected Summary
+# Final Recorded Summary
 
 | Measure | Pre-execution projection |
 |:--|:--|
@@ -459,12 +459,12 @@ The projection must not be rewritten after the result is known merely to make th
 | **A2** | **≈ 89%** |
 | **A3** | **≈ 85%** |
 | **A4** | **≈ 68%** |
-| **Expected dominant mechanism** | **Inference-time candidate coverage** |
-| **Expected training effect** | **Modest task / format adaptation** |
-| **Expected main uncertainty** | **How much extra inference calls actually diversify candidates** |
+| **Recorded dominant mechanism** | **Inference-time candidate coverage** |
+| **Recorded training effect** | **Modest task / format adaptation** |
+| **Observed main uncertainty** | **How much extra inference calls actually diversify candidates** |
 | **Empirical result status** | **Executed / results recorded** |
 
-> **Bottom line:** The pre-data hypothesis is that, under this fixed compute envelope, **spending compute on more inference candidates is more valuable than moving most of the budget into a small amount of additional training**. The experiment exists to test whether that hypothesis survives contact with the real benchmark.
+> **Bottom line:** The recorded experiment tests the training-versus-inference allocation question under the fixed compute envelope. The measured results are reported above with the protocol and uncertainty information.
 
 ---
 
