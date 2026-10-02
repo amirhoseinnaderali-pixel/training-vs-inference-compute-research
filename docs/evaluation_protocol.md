@@ -1,5 +1,7 @@
 # Evaluation protocol
 
-The benchmark uses a deterministic visible/hidden split. Visible feedback may be used only where the frozen condition permits it. Hidden tests are never passed to strategy selection, training, checkpoint selection, hyperparameter tuning, or inference strategy selection.
+The model-facing benchmark contains only prompts and visible assertions. Hidden assertions are materialized into a separate evaluator-only file.
 
-Final correctness is produced by an independent evaluator after selection. Validation data and final held-out evaluation are separate.
+Candidate generation receives no hidden-test content. There is no hidden-informed candidate selection. After all candidates are generated within the inference budget, the independent Docker evaluator runs each candidate against the hidden assertions. Only post-generation evaluator results enter the result artifact.
+
+The primary observation is task-level objective hidden correctness; candidate-level correctness is retained for transparent analysis. Training validation, inference-visible feedback, and final held-out evaluation are separate.
