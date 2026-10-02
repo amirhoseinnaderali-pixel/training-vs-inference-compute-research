@@ -6,9 +6,9 @@ Under a fixed total compute allowance, how should compute be allocated between t
 
 ## Portfolio status
 
-REGISTERED — EMPIRICAL RESULT NOT RECOVERED FOR THE TARGET QUESTION
+COMPLETED — RECORDED EMPIRICAL STUDY
 
-The current repository contains a hardened controlled instrument for the training-vs-inference allocation question, but no real EXP-001 result set was recovered from the repository or its visible Git history.
+The current repository contains a hardened controlled instrument and the recorded EXP-001 empirical study for the training-vs-inference allocation question.
 
 ## Evidence audit
 
@@ -38,7 +38,7 @@ The portfolio can honestly claim that:
 
 ## What cannot be claimed
 
-The available evidence does not establish:
+The recorded study is exploratory and does not by itself establish broad generalization beyond the evaluated benchmark and budget regime. It does not establish:
 
 - that one allocation is more accurate;
 - that more training is better than more inference, or vice versa;
@@ -48,10 +48,10 @@ The available evidence does not establish:
 
 ## Conclusion
 
-P5 is a completed research-instrument project, but not a completed empirical study of the target question.
+P5 is a completed empirical study of the target question, with explicit scope and reproducibility limitations.
 
 The older training projects are useful lineage and evidence that real training work was performed, but using their results as P5 findings would change the research question. They are therefore not promoted into P5 empirical results.
 
 ## Reproducibility boundary
 
-The current P5 repository is the authoritative implementation of the target experiment. Any future empirical claim must come from raw A0–A4 result files generated under the frozen budget and provenance controls.
+The current P5 repository is the authoritative implementation of the target experiment. Future empirical claims or replications should come from raw A0–A4 result files generated under the frozen budget and provenance controls.
