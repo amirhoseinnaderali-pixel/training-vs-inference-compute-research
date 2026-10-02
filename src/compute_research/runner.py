@@ -1,7 +1,7 @@
 from pathlib import Path
 import os,time,uuid,json,subprocess
 from .config import load_config
-from .benchmark import load_materialized
+from .benchmark import load_model_tasks
 from .readiness import real_readiness,assert_ready
 from .real_adapters import HuggingFaceSFTAdapter,HuggingFaceInferenceAdapter
 from .inference_budget import InferenceAccount
@@ -20,13 +20,13 @@ def run_one(config_path,condition_id,seed,task_limit=None):
     cfg=load_config(config_path); raw=cfg.raw; root=Path(".")
     bench_path=root/"benchmarks/programming/exp001_v1/tasks.jsonl"; manifest=root/"benchmarks/manifests/exp001_v1.json"
     if not bench_path.exists(): raise RuntimeError("real execution blocked: materialized benchmark missing")
-    benchmark=load_materialized(bench_path,manifest); assert_ready(real_readiness(cfg,True))
+    tasks_all=load_model_tasks(bench_path,manifest); assert_ready(real_readiness(cfg,True))
     cond=next((x for x in raw["allocation_matrix"] if x["condition_id"]==condition_id),None)
     if cond is None: raise ValueError(condition_id)
     if abs(cond["training_fraction"]+cond["inference_fraction"]-1)>1e-9: raise ValueError("allocation fractions do not sum to one")
     run_id=f"{condition_id}-seed{seed}-{uuid.uuid4().hex[:10]}"; results_root=root/"results/raw"
-    tasks=benchmark.tasks if task_limit is None else benchmark.tasks[:task_limit]
-    evaluator=DockerHiddenEvaluator()
+    tasks=tasks_all if task_limit is None else tasks_all[:task_limit]
+    evaluator=DockerHiddenEvaluator(root/"benchmarks/programming/exp001_v1/hidden_tests.jsonl")
     for task in tasks:
         started=time.time(); checkpoint_id=""; status="complete"
         try:
@@ -53,7 +53,7 @@ def run_one(config_path,condition_id,seed,task_limit=None):
                 out=model.generate(task.prompt,min(quota,raw["inference"]["max_output_tokens_per_call"]),seed+i)
                 if out["input_tokens"]+out["output_tokens"] != input_n+quota: raise RuntimeError("generation did not realize declared token quota")
                 account.reserve(out["input_tokens"],out["output_tokens"],1,1,out["wall_seconds"]); candidate_texts.append(out["text"])
-                evals.append(evaluator.evaluate_task(task,out["text"]))
+                evals.append(evaluator.evaluate(task,out["text"]))
                 remaining_output-=out["output_tokens"]
             if account.total_tokens!=cond["inference_tokens"]: raise BudgetViolation("inference","token_budget_not_fully_consumed",account.total_tokens,cond["inference_tokens"])
             correct=sum(e.hidden_score for e in evals)
@@ -62,6 +62,6 @@ def run_one(config_path,condition_id,seed,task_limit=None):
         except BudgetViolation as e:
             status="ineligible_budget"; compute={"budget_violation":str(e)}; final_eval={"hidden_correct":None,"hidden_exposed":False}
             train={"training_tokens":0,"optimizer_steps":0,"estimated_training_flops":0,"training_wall_seconds":0}
-        record=ResultRecord(raw["experiment_id"],run_id,condition_id,task.task_id,seed,git_sha(),cfg.config_hash,benchmark.manifest_hash,raw["model"]["initialization_id"],checkpoint_id,{"planned_tokens":cond["training_tokens"],"planned_steps_max":cond["training_budget_steps"],"planned_flops":cond["training_estimated_flops"]},{"planned_tokens":cond["inference_tokens"],"planned_calls":cond["inference_model_calls"]},compute,final_eval,status)
+        record=ResultRecord(raw["experiment_id"],run_id,condition_id,task.task_id,seed,git_sha(),cfg.config_hash,__import__("compute_research.benchmark",fromlist=["sha256_file"]).sha256_file(manifest),raw["model"]["initialization_id"],checkpoint_id,{"planned_tokens":cond["training_tokens"],"planned_steps_max":cond["training_budget_steps"],"planned_flops":cond["training_estimated_flops"]},{"planned_tokens":cond["inference_tokens"],"planned_calls":cond["inference_model_calls"]},compute,final_eval,status)
         write_result(results_root,record)
     return run_id
