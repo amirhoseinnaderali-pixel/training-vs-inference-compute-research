@@ -26,11 +26,11 @@ def test_cli_real_mode_is_connected_to_runner(monkeypatch):
 def test_cli_validation_mode_uses_requested_validation_config(monkeypatch):
     cli=_load_script("run_experiment")
     seen=[]
-    monkeypatch.setitem(
-        sys.modules,
-        "run_validation",
-        type("M",(),{"main":lambda path: seen.append(path)})(),
-    )
+    module=type(
+        "M",(),
+        {"main":staticmethod(lambda path: seen.append(path))}
+    )()
+    monkeypatch.setitem(sys.modules,"run_validation",module)
     monkeypatch.setattr(sys,"argv",[
         "run_experiment.py","--config","configs/validation.yaml","--mode","validation"
     ])
