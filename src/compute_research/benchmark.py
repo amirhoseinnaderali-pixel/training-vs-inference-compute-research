@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 from pathlib import Path
-import hashlib, json, ast
+import hashlib,json,ast
+
+@dataclass(frozen=True)
+class ModelTask:
+    task_id:str; prompt:str; entry_point:str; visible_tests:str; task_sha256:str; test_sha256:str
 
 @dataclass(frozen=True)
 class BenchmarkTask:
@@ -9,12 +13,11 @@ class BenchmarkTask:
 @dataclass(frozen=True)
 class Benchmark:
     benchmark_id:str; version:str; tasks:tuple[BenchmarkTask,...]; manifest_hash:str; source_archive_sha256:str; contamination_policy:str
-    def assert_integrity(self, expected_count:int):
+    def assert_integrity(self,expected_count:int):
         if len(self.tasks)!=expected_count: raise ValueError(f"benchmark task count {len(self.tasks)} != {expected_count}")
         ids=[t.task_id for t in self.tasks]
         if len(ids)!=len(set(ids)): raise ValueError("duplicate benchmark task")
-        if any(not t.hidden_tests.strip() for t in self.tasks): raise ValueError("hidden evaluation missing")
-        if any(not t.visible_tests.strip() for t in self.tasks): raise ValueError("visible evaluation missing")
+        if any(not t.hidden_tests.strip() or not t.visible_tests.strip() for t in self.tasks): raise ValueError("evaluation split missing")
 
 def sha256_file(path:Path)->str:
     h=hashlib.sha256()
@@ -23,28 +26,35 @@ def sha256_file(path:Path)->str:
     return h.hexdigest()
 
 def _split_tests(test_source:str):
-    tree=ast.parse(test_source)
-    fn=next((n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=="check"),None)
+    tree=ast.parse(test_source); fn=next((n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=="check"),None)
     if fn is None: raise ValueError("HumanEval task has no check(candidate)")
     asserts=[n for n in fn.body if isinstance(n,ast.Assert)]
     if len(asserts)<2: raise ValueError("task has fewer than two top-level asserts")
-    visible_n=(len(asserts)+1)//2
-    lines=test_source.splitlines()
-    prefix="\n".join(lines[:fn.lineno-1])
-    def block(nodes):
-        return "\n".join("\n".join(lines[n.lineno-1:n.end_lineno]) for n in nodes)
+    visible_n=(len(asserts)+1)//2; lines=test_source.splitlines(); prefix="\n".join(lines[:fn.lineno-1])
+    def block(nodes): return "\n".join("\n".join(lines[n.lineno-1:n.end_lineno]) for n in nodes)
     def wrap(nodes): return prefix+"\n\ndef check(candidate):\n    "+block(nodes).replace("\n","\n    ")
     return wrap(asserts[:visible_n]),wrap(asserts[visible_n:])
 
-def load_materialized(path:Path,manifest_path:Path)->Benchmark:
-    manifest=json.loads(manifest_path.read_text())
-    rows=[json.loads(x) for x in path.read_text().splitlines() if x.strip()]
+def load_model_tasks(path:Path,manifest_path:Path)->tuple[ModelTask,...]:
+    manifest=json.loads(manifest_path.read_text()); rows=[json.loads(x) for x in path.read_text().splitlines() if x.strip()]
     expected={t["task_id"]:t for t in manifest["tasks"]}
     if list(expected)!=[r["task_id"] for r in rows]: raise ValueError("benchmark ordering/task selection differs from frozen manifest")
-    tasks=[]
+    out=[]
     for r in rows:
+        if "hidden_tests" in r: raise ValueError("hidden tests must not be present in model-facing benchmark")
         e=expected[r["task_id"]]
-        if r.get("task_sha256")!=e["task_sha256"] or r.get("test_sha256")!=e["test_sha256"]: raise ValueError(f"{r['task_id']}: frozen task/test hash mismatch")
-        tasks.append(BenchmarkTask(r["task_id"],r["prompt"],r["entry_point"],r["visible_tests"],r["hidden_tests"],r["task_sha256"],r["test_sha256"]))
-    b=Benchmark(manifest["benchmark_id"],manifest["version"],tuple(tasks),sha256_file(manifest_path),manifest["provenance"]["source_archive_sha256"],"provenance documented; exact zero contamination is not claimed")
-    b.assert_integrity(manifest["task_count"]); return b
+        if r.get("task_sha256")!=e["task_sha256"] or r.get("test_sha256")!=e["test_sha256"]: raise ValueError(f"{r['task_id']}: frozen hash mismatch")
+        out.append(ModelTask(r["task_id"],r["prompt"],r["entry_point"],r["visible_tests"],r["task_sha256"],r["test_sha256"]))
+    if len(out)!=manifest["task_count"]: raise ValueError("task count mismatch")
+    return tuple(out)
+
+def load_materialized(path:Path,hidden_path:Path,manifest_path:Path)->Benchmark:
+    model=load_model_tasks(path,manifest_path); hidden={json.loads(x)["task_id"]:json.loads(x) for x in hidden_path.read_text().splitlines() if x.strip()}
+    tasks=[]
+    for t in model:
+        h=hidden.get(t.task_id)
+        if not h or h.get("test_sha256")!=t.test_sha256 or not h.get("hidden_tests","").strip(): raise ValueError(f"hidden store mismatch: {t.task_id}")
+        tasks.append(BenchmarkTask(t.task_id,t.prompt,t.entry_point,t.visible_tests,h["hidden_tests"],t.task_sha256,t.test_sha256))
+    m=json.loads(manifest_path.read_text())
+    b=Benchmark(m["benchmark_id"],m["version"],tuple(tasks),sha256_file(manifest_path),m["provenance"]["source_archive_sha256"],"provenance documented; exact zero contamination is not claimed")
+    b.assert_integrity(m["task_count"]); return b
