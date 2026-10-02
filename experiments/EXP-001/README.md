@@ -2,14 +2,20 @@
 
 STATUS: FROZEN / NOT EXECUTED
 
+Authoritative configuration: `configs/experiments/exp001_fixed_allocation.yaml`.
+
+Experimental unit: one benchmark task × one seed × one allocation condition. Training is performed from the same frozen base model for each unit, then inference is performed on that task. This makes the fixed compute envelope apply to the unit being compared.
+
 Seeds: 42, 43, 44.
 
-A0: training 0%, inference 100%, 0 training steps, 16 inference calls.
-A1: training 25%, inference 75%, 500 training steps, 12 inference calls.
-A2: training 50%, inference 50%, 1000 training steps, 8 inference calls.
-A3: training 75%, inference 25%, 1500 training steps, 4 inference calls.
-A4: training 100%, inference 0%, 2000 training steps, 1 inference call.
+| Condition | Training fraction | Inference fraction | Training token budget | Max optimizer steps | Inference token budget | Model calls |
+|---|---:|---:|---:|---:|---:|---:|
+| A0 | 10% | 90% | 10,822 | 3 | 292,207 | 16 |
+| A1 | 30% | 70% | 32,467 | 8 | 227,272 | 12 |
+| A2 | 50% | 50% | 54,112 | 13 | 162,337 | 8 |
+| A3 | 70% | 30% | 75,757 | 18 | 97,402 | 4 |
+| A4 | 90% | 10% | 97,402 | 24 | 32,467 | 1 |
 
-These are frozen allocation coordinates, not fabricated FLOP measurements. Actual FLOPs are recorded independently. The matrix must not be changed after results are observed.
+The fractions are the frozen allocation coordinates. Integer token budgets produce a small rounding remainder below the 1e15 estimated-FLOP envelope. Training token budget is primary; optimizer steps are a hard maximum. Training uses a token stream and consumes the exact declared token budget before checkpointing. Inference consumes the exact declared total input+output token budget, subject to the frozen per-call safety cap.
 
-Primary outcome: hidden correctness per task. Secondary outcomes: all compute-accounting dimensions.
+Primary outcome: objective hidden correctness per task. Secondary outcomes: all raw compute dimensions. Hidden evaluation occurs only after candidate generation and never influences selection (there is no hidden-informed selection).
