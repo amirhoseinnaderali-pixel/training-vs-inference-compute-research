@@ -22,7 +22,7 @@ PASS at metadata/schema level. Git SHA, config hash, benchmark hash, model/token
 PASS. The Qwen model revision, tokenizer revision, CodeForces-CoTs dataset revision, dataset provenance manifest, and Project 3 benchmark manifest are frozen in configuration.
 
 ## 8. Does CI pass?
-PENDING FINAL RUN. The previous run installed pytest correctly but failed five tests because frozen FLOP fields were rounded independently from token-derived values. Those fields have now been corrected to exact token-derived values. A new CI run is required to establish final green state.
+PASS. GitHub Actions run 55 completed successfully: pytest, validate_config, run_validation, and scientific_audit all passed. The suite reports 16 passing tests.
 
 ## 9. Is a real smoke test possible?
 NO in the current execution environment. The available runtime has no Docker daemon and no NVIDIA GPU. The real gate therefore remains fail-closed.
