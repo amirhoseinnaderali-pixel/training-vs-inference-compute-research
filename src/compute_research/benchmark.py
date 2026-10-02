@@ -36,7 +36,10 @@ def _split_tests(test_source:str):
     return wrap(asserts[:visible_n]),wrap(asserts[visible_n:])
 
 def load_model_tasks(path:Path,manifest_path:Path)->tuple[ModelTask,...]:
-    manifest=json.loads(manifest_path.read_text()); rows=[json.loads(x) for x in path.read_text().splitlines() if x.strip()]
+    manifest_text=manifest_path.read_text(); manifest=json.loads(manifest_text); rows=[json.loads(x) for x in path.read_text().splitlines() if x.strip()]
+    expected_manifest_hash=manifest.get("integrity",{}).get("manifest_content_sha256")
+    if expected_manifest_hash and hashlib.sha256(manifest_text.encode()).hexdigest()!=expected_manifest_hash:
+        raise ValueError("frozen benchmark manifest self-hash mismatch")
     expected={t["task_id"]:t for t in manifest["tasks"]}
     if list(expected)!=[r["task_id"] for r in rows]: raise ValueError("benchmark ordering/task selection differs from frozen manifest")
     out=[]
