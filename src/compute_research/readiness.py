@@ -8,7 +8,7 @@ class Gate:
 def real_readiness(config,benchmark_present):
     return [
         Gate("benchmark",benchmark_present,"materialized benchmark required"),
-        Gate("credentials",bool(os.getenv("OPENAI_API_KEY")),"credential required"),
+        Gate("credentials",not config.raw["execution"]["require_credentials"] or bool(os.getenv("OPENAI_API_KEY")),"credential required by selected runtime"),
         Gate("docker",shutil.which("docker") is not None,"docker executable required"),
         Gate("mock_disabled",not config.raw["execution"]["allow_mock"],"mock must be disabled"),
         Gate("validation_disabled",not config.validation_only,"real config required"),
