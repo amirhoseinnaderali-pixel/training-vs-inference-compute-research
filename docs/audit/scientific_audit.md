@@ -1,13 +1,39 @@
-# Scientific audit
+# Scientific audit — final integration pass
 
-Methodology: PASS. Allocation is the primary variable and no preferred allocation is encoded.
-Budget enforcement: PASS at software-contract level.
-Benchmark integrity: PARTIAL until the materialized frozen benchmark is validated.
-Contamination control: PARTIAL; provenance is recorded but exact overlap measurement is not claimed.
-Evaluation isolation: PASS by interface and tests.
-Reproducibility: PASS at schema/design level.
-Compute accounting: PASS; raw dimensions retain measurement status.
-Statistical analysis: PASS; paired task-seed differences and bootstrap confidence intervals are implemented.
-Execution safety: PASS; real mode fails closed on missing benchmark, credentials, Docker, model, or dataset.
+## 1. Does the real runner execute the frozen experiment?
+PASS. scripts/run_experiment.py now invokes the frozen config, model-facing benchmark validation, readiness gate, Hugging Face training adapter, checkpoint provenance validation, Hugging Face inference adapter, independent hidden evaluator, compute accounting, and result writer.
 
-Remaining blockers are input-freezing and runtime blockers, not fake results.
+## 2. Is the 1e15 envelope enforced?
+PASS at the estimated-compute contract level. Each allocation condition's declared training and inference token budgets are converted to the frozen 6*N*tokens and 2*N*tokens estimates and validated against the 1e15 envelope. Runtime training and inference are hard-bounded by their declared token/step/call/wall-clock limits. Measured hardware FLOPs are not fabricated.
+
+## 3. Does each allocation consume the intended compute?
+PASS by token-budget contract. Training consumes its exact declared token budget. Inference reserves and realizes the exact declared input+output token budget for each task; an inability to realize the quota is not accepted as normal evidence.
+
+## 4. Are accounting quantities consistent?
+PASS. Planned and realized values are separate. Training FLOPs are estimated from realized training tokens; inference FLOPs are estimated from realized input+output tokens; total FLOPs are derived. Wall-clock and monetary cost are separate fields with measurement status.
+
+## 5. Are hidden tests isolated?
+PASS by architecture. The model-facing tasks.jsonl contains no hidden assertions. Hidden assertions live in hidden_tests.jsonl and are loaded only by the independent Docker evaluator after candidate generation. There is no hidden-informed selection.
+
+## 6. Are results reproducible?
+PASS at metadata/schema level. Git SHA, config hash, benchmark hash, model/tokenizer revision, dataset revision/hash, seed, allocation, budget, checkpoint provenance, and runtime metadata are recorded. Result directories refuse overwrite.
+
+## 7. Are model/data/checkpoint versions frozen?
+PASS. The Qwen model revision, tokenizer revision, CodeForces-CoTs dataset revision, dataset provenance manifest, and Project 3 benchmark manifest are frozen in configuration.
+
+## 8. Does CI pass?
+PENDING FINAL RUN. The previous run installed pytest correctly but failed five tests because frozen FLOP fields were rounded independently from token-derived values. Those fields have now been corrected to exact token-derived values. A new CI run is required to establish final green state.
+
+## 9. Is a real smoke test possible?
+NO in the current execution environment. The available runtime has no Docker daemon and no NVIDIA GPU. The real gate therefore remains fail-closed.
+
+## 10. Does a scientific blocker remain?
+Runtime blocker only. No empirical evidence exists yet. The experiment is implemented end-to-end in software, but real training/inference/hidden evaluation has not been executed.
+
+### Audit classification
+- IMPLEMENTED: yes
+- VALIDATED: software regression suite pending final CI rerun
+- SCIENTIFICALLY AUDITED: yes
+- READY FOR REAL EXECUTION: no, runtime and benchmark-materialization gates pending
+- EXECUTED: no
+- EMPIRICALLY COMPLETE: no
