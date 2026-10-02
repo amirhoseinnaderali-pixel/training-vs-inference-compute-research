@@ -6,7 +6,395 @@
 
 The hardened A0–A4 instrument is implemented and audited, but no real controlled EXP-001 result set was recovered. Earlier training/fine-tuning repositories are lineage evidence, not valid P5 allocation experiments.
 
-Project 5 studies how a fixed compute allowance is allocated between training and inference.
+Project 5 studies how a fixed compute allowance is allocated between **training** and **inference**.
+
+---
+
+# EXP-001 — Training More or Reasoning More?
+
+## Fixed-Compute Training vs. Inference Allocation Benchmark
+
+### Research question
+
+> **Under a fixed total compute envelope, how should compute be allocated between model training and inference-time generation to maximize held-out task correctness?**
+
+The frozen experiment compares five allocations:
+
+- **A0** — 10% training / 90% inference
+- **A1** — 30% training / 70% inference
+- **A2** — 50% training / 50% inference
+- **A3** — 70% training / 30% inference
+- **A4** — 90% training / 10% inference
+
+The primary outcome is the task-level probability that **at least one generated candidate passes the independent hidden evaluator** after candidate generation is complete.
+
+---
+
+# ⚠️ Expected Projection — Pre-Execution
+
+> **EXPECTED ONLY — NOT AN EMPIRICAL RESULT**
+>
+> Every number in this section is a **prior estimate made before the real EXP-001 run**.
+>
+> These values are included so that the experiment has a falsifiable, explicit pre-data prediction. They must not be read as measured accuracy, confidence intervals, statistical results, or an empirical ranking.
+>
+> **Current status: NOT EXECUTED.**
+
+The projection is intentionally separate from the historical-evidence report. No previous Qwen or GSM8K result is being promoted into P5 empirical evidence.
+
+---
+
+## 1. Projected Main Results
+
+The pre-execution hypothesis is that **inference-heavy allocations perform best**, while the heavily training-dominant A4 condition experiences a substantial loss of inference-time candidate coverage.
+
+| Condition | Inference calls | Training steps | Training share | Inference share | Projected hidden accuracy | Plausible range |
+|:--|--:|--:|--:|--:|--:|--:|
+| **A0** | 16 | 3 | 10% | 90% | **92%** | **88–95%** |
+| **A1** | 12 | 8 | 30% | 70% | **91%** | **87–94%** |
+| **A2** | 8 | 13 | 50% | 50% | **89%** | **85–93%** |
+| **A3** | 4 | 18 | 70% | 30% | **85%** | **80–89%** |
+| **A4** | 1 | 24 | 90% | 10% | **68%** | **60–74%** |
+
+These ranges are **plausible operating regions**, not confidence intervals from observed data.
+
+### Projected central picture
+
+```text
+Projected Hidden-Test Accuracy
+
+A0   92%   ●
+A1   91%   ●
+A2   89%   ●
+A3   85%   ●
+A4   68%   ●
+```
+
+The expected pattern is therefore:
+
+```text
+A0 ≳ A1 > A2 > A3 ≫ A4
+```
+
+This is a **pre-registered hypothesis**, not an empirical result.
+
+---
+
+# 2. What the Frozen Experiment Actually Uses
+
+The current frozen configuration specifies:
+
+| Item | Frozen design |
+|:--|:--|
+| Model | **Qwen/Qwen2.5-Coder-1.5B** |
+| Parameters | **~1.54B** |
+| Benchmark | **HumanEval-stratified-100-v1** |
+| Tasks | **100** |
+| Seeds | **42, 43, 44** |
+| Precision | **bf16** |
+| Training optimizer | **AdamW** |
+| Learning rate | **2e-5** |
+| Training sequence length | **1024** |
+| Training objective | **Causal language modeling** |
+| Training dataset | **open-r1/codeforces-cots** |
+| Total estimated compute | **1e15 FLOPs** |
+| Training FLOPs estimate | **6 × parameters × training tokens** |
+| Inference FLOPs estimate | **2 × parameters × inference tokens** |
+| Max output tokens / call | **32,768** |
+| Max model calls | **16** |
+| Primary outcome | **Any candidate passes hidden evaluator** |
+
+The benchmark is therefore **not a GSM8K experiment**. The pre-execution numbers above are retained as projections, but the task-level claims are now tied to the actual frozen HumanEval-based protocol.
+
+---
+
+# 3. Frozen A0–A4 Allocation Matrix
+
+The scientific allocation is:
+
+| Condition | Training fraction | Inference fraction | Training steps | Training tokens | Inference tokens | Inference calls |
+|:--|--:|--:|--:|--:|--:|--:|
+| **A0** | 10% | 90% | 3 | 10,822 | 292,207 | 16 |
+| **A1** | 30% | 70% | 8 | 32,467 | 227,272 | 12 |
+| **A2** | 50% | 50% | 13 | 54,112 | 162,337 | 8 |
+| **A3** | 70% | 30% | 18 | 75,757 | 97,402 | 4 |
+| **A4** | 90% | 10% | 24 | 97,402 | 32,467 | 1 |
+
+All five conditions target the same total estimated compute envelope:
+
+[
+10^{15} 	ext{FLOPs}
+]
+
+The important independent variables are therefore the **allocation of compute**, not simply the raw number of training steps or inference calls.
+
+---
+
+# 4. Main Pre-Execution Hypothesis
+
+The central hypothesis is:
+
+> **For this small ~1.5B-parameter model and fixed compute budget, additional inference-time candidate generation will contribute more to held-out correctness than moving the same compute into a small amount of additional fine-tuning.**
+
+The expected mechanism is:
+
+[
+	ext{More inference compute}
+ightarrow
+	ext{More candidate coverage}
+ightarrow
+	ext{Higher probability of at least one valid solution}
+]
+
+while:
+
+[
+	ext{More training compute}
+ightarrow
+	ext{Better task adaptation}
+ightarrow
+	ext{Potentially better individual candidates}
+]
+
+The projection assumes that, under this particular budget, the second effect saturates before the first one does.
+
+---
+
+# 5. Why the Projection Has This Shape
+
+## Inference candidate coverage
+
+A0 has **16 inference calls**, while A4 has only **1**.
+
+Because the primary outcome is:
+
+> **at least one candidate passes the hidden evaluator**
+
+the experiment is highly sensitive to candidate coverage.
+
+Operationally, this resembles a **pass@k-style** effect, although the frozen estimand is defined directly as any-candidate-hidden-pass at the task-seed-condition level rather than as a separately estimated classical pass@k statistic.
+
+The prior therefore expects a large difference between:
+
+- **A0 / A1 / A2**, which retain substantial inference-time exploration;
+- **A3**, which has only four calls;
+- **A4**, which has only one call.
+
+## Limited training budget
+
+Even A4 allocates only **97,402 training tokens**.
+
+The projection treats this as useful adaptation, but not as enough training compute to transform the underlying model's reasoning capability dramatically.
+
+The expected role of the training component is therefore:
+
+- task / format adaptation;
+- improved solution style;
+- reduced mismatch between the pretrained behavior and the benchmark;
+- modest correction of recurring task-specific errors.
+
+It is **not** assumed to create a new reasoning capability from scratch.
+
+## Diminishing returns
+
+A0, A1, and A2 are expected to be relatively close:
+
+[
+92%, 91%, 89%
+]
+
+because the projection assumes diminishing marginal returns from moving between already inference-heavy allocations.
+
+The expected largest discontinuity is between:
+
+[
+A3 ightarrow A4
+]
+
+where inference coverage collapses from **4 calls to 1**.
+
+---
+
+# 6. Projected Probability Statements
+
+These are **subjective pre-data probabilities**, not outputs from an inferential model.
+
+| Claim | Prior probability |
+|:--|--:|
+| **A4 is the worst condition** | **92%** |
+| **A4 is at least 10 pp below A0** | **82%** |
+| **The best condition is A0 or A1** | **59%** |
+| **A0–A2 are not statistically distinguishable** | **55%** |
+| **The exact monotone ordering A0 > A1 > A2 > A3 > A4 holds** | **35%** |
+| **The best condition is A2 or A3** | **34%** |
+| **A4 is the best condition** | **3%** |
+| **A2 forms a clear inverted-U peak** | **<8%** |
+
+The low probability assigned to the exact ordering is deliberate. The projection expects a general inference-heavy advantage without assuming that every adjacent difference will be statistically resolvable.
+
+---
+
+# 7. Sensitivity Analysis — What Could Change the Projection?
+
+## 7.1 Candidate selection policy
+
+The current frozen primary outcome is **any candidate passes hidden evaluation**.
+
+That makes the allocation comparison highly sensitive to inference-time candidate count.
+
+If a future protocol instead uses a learned or heuristic selector to choose only one final candidate before hidden evaluation, the benefit of additional inference calls could become smaller.
+
+That would be a **different estimand** and should be reported separately rather than mixed with EXP-001.
+
+## 7.2 Sampling diversity
+
+If inference generation is effectively deterministic and multiple calls become near-identical, the expected benefit of extra inference compute shrinks.
+
+The practical question becomes:
+
+> How much independent solution-space coverage do the additional inference calls actually provide?
+
+## 7.3 Output-format strictness
+
+The model is evaluated on executable program outputs.
+
+A large fraction of failures caused by formatting, parsing, or malformed code could make the fine-tuning component look more valuable because training may improve benchmark-specific output discipline.
+
+## 7.4 Real token utilization
+
+The configuration gives an inference-token allocation and per-call output ceiling, but the actual number of generated tokens and measured FLOPs must come from execution telemetry.
+
+The scientific comparison therefore keeps **estimated budget allocation** and **measured compute usage** separate.
+
+---
+
+# 8. Corrected Notes From Earlier Analysis
+
+The following earlier claims are explicitly withdrawn:
+
+> ~~"Inference calls are the only meaningful hard limit because each call uses 18–32K tokens."~~
+
+That conclusion was not justified without knowing whether the quoted token counts were per call or totals across the evaluation.
+
+The frozen configuration now makes the relevant quantities explicit:
+
+- **max output per call = 32,768 tokens**
+- total inference-token allocations are condition-specific;
+- model calls are **16 / 12 / 8 / 4 / 1** across A0–A4.
+
+The earlier GSM8K assumption is also withdrawn.
+
+The current P5 benchmark is:
+
+> **HumanEval-stratified-100-v1**
+
+The model is:
+
+> **Qwen/Qwen2.5-Coder-1.5B**
+
+This README therefore uses the current frozen configuration for factual experiment descriptions while keeping the stated accuracy numbers as **pre-data projections**.
+
+---
+
+# 9. Projected Compute–Correctness Frontier
+
+The expected relationship is:
+
+```text
+Hidden-Test Accuracy
+  ^
+92| ● A0
+91|   ● A1
+89|       ● A2
+85|             ● A3
+68|                         ● A4
+  +------------------------------------> Training Share
+    10%    30%    50%    70%    90%
+```
+
+Equivalently, increasing the training share is expected to reduce inference-time candidate coverage enough to outweigh the modest adaptation benefit in this particular budget regime.
+
+This is a hypothesis to be tested, not a conclusion.
+
+---
+
+# 10. What the Real Run Can Falsify
+
+The strongest value of this projection is that it can fail.
+
+Examples:
+
+### A4 substantially exceeds the prediction
+
+That would suggest the training allocation is more effective than assumed, or that the primary outcome is not as sensitive to candidate count as expected.
+
+### A2 becomes the clear peak
+
+That would support a genuine balance between adaptation and inference rather than a simple inference-dominant regime.
+
+### A0, A1, and A2 are nearly identical
+
+That would indicate a saturation regime where additional inference calls beyond a moderate budget have little extra value.
+
+### A0 and A1 are much lower than expected
+
+Possible audit targets would include candidate diversity, evaluator behavior, benchmark difficulty, training implementation, or compute accounting.
+
+### The entire curve shifts downward
+
+The first interpretation should be an implementation / provenance audit, not immediate rejection of the allocation hypothesis.
+
+---
+
+# 11. Pre-Execution Scorecard
+
+Commit this scorecard **before seeing empirical results**.
+
+- [ ] Every condition's measured center falls within its projected operating range
+- [ ] A4 is the worst condition
+- [ ] A4 trails A0 by at least 10 percentage points
+- [ ] The best condition is A0 or A1
+- [ ] A0–A2 are not statistically distinguishable
+
+The scorecard is a record of the prior, not a checklist for declaring success.
+
+---
+
+# 12. Scientific Guardrails
+
+The experiment is designed so that:
+
+- all A0–A4 conditions share one frozen total compute target;
+- benchmark provenance is frozen;
+- model identity is frozen;
+- training and inference accounting are defined separately;
+- hidden evaluation is independent of strategy selection;
+- results are collected across **three seeds: 42, 43, 44**;
+- bootstrap resampling is preconfigured with **10,000 resamples** and a **95% confidence level**;
+- mock execution is not allowed to become scientific evidence;
+- the real execution path is fail-closed.
+
+No empirical allocation optimum is claimed until real task-level results are produced.
+
+---
+
+# 13. Current Status
+
+**PROJECT 5 IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / NOT EXECUTED**
+
+No raw EXP-001 result set is currently reported.
+
+What exists today is:
+
+- a frozen A0–A4 compute-allocation matrix;
+- connected real training and inference execution;
+- independent hidden evaluation;
+- fixed seeds;
+- compute accounting;
+- audit and validation safeguards;
+- an explicit **pre-execution prediction** that can later be compared against measured results.
+
+---
 
 ## Execution
 
@@ -28,9 +416,60 @@ Smoke artifacts are stored under `results/smoke/`; scientific evidence is stored
 
 Real execution is fail-closed on benchmark, provenance, Docker, CUDA, dependency, model, dataset, Git, and mock-mode prerequisites.
 
-STATUS: **PROJECT 5 IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / NOT EXECUTED.**
+---
 
-The frozen A0-A4 allocation matrix is unchanged. No empirical result is claimed.
+## Reproducibility Boundary
 
+The authoritative frozen experiment specification is:
+
+```text
+configs/experiments/exp001_fixed_allocation.yaml
+```
+
+Historical evidence is documented separately in:
+
+[docs/research_report.md](docs/research_report.md)
+
+The critical scientific separation is:
+
+```text
+Pre-execution projection
+        ↓
+Real EXP-001 execution
+        ↓
+Task-level raw results
+        ↓
+Validity / provenance audit
+        ↓
+Statistical analysis
+        ↓
+Empirical conclusion
+```
+
+The projection must not be rewritten after the result is known merely to make the prediction look better.
+
+---
+
+# Final Expected Summary
+
+| Measure | Pre-execution projection |
+|:--|:--|
+| **Baseline / inference-heavy region** | **A0 ≈ 92%** |
+| **A1** | **≈ 91%** |
+| **A2** | **≈ 89%** |
+| **A3** | **≈ 85%** |
+| **A4** | **≈ 68%** |
+| **Expected dominant mechanism** | **Inference-time candidate coverage** |
+| **Expected training effect** | **Modest task / format adaptation** |
+| **Expected main uncertainty** | **How much extra inference calls actually diversify candidates** |
+| **Empirical result status** | **Not executed** |
+
+> **Bottom line:** The pre-data hypothesis is that, under this fixed compute envelope, **spending compute on more inference candidates is more valuable than moving most of the budget into a small amount of additional training**. The experiment exists to test whether that hypothesis survives contact with the real benchmark.
+
+---
+
+## Research status
+
+**IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / NOT EXECUTED**
 
 See [docs/research_report.md](docs/research_report.md) for the historical evidence audit and conclusion.
