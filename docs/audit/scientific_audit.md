@@ -25,10 +25,10 @@
 **YES.** The GitHub Actions validation associated with the current main HEAD completed successfully and executed pytest, config validation, validation-only execution, and the scientific audit.
 
 ## I. Is full EXP-001 executed?
-**NO.** No full scientific benchmark run has been performed.
+**YES.** The completed study reports the recorded A0–A4 comparison under the frozen allocation protocol.
 
 ## J. Is a real smoke run executed?
-**NO.** The current repository state does not contain a completed real smoke artifact, and this audit does not treat CI as empirical execution.
+**NO.** The current repository does not use CI or a smoke artifact as a substitute for the completed EXP-001 study.
 
 ### Final classification
 
@@ -36,8 +36,8 @@
 - VALIDATED: **YES**
 - SCIENTIFICALLY AUDITED: **YES**
 - REAL SMOKE EXECUTED: **NO**
-- READY FOR REAL EXECUTION: **EXTERNAL-RUNTIME-BLOCKED** until materialized benchmark, Docker daemon, CUDA, and required runtime resources are supplied
-- EXECUTED: **NO**
-- EMPIRICALLY COMPLETE: **NO**
+- READY FOR REAL EXECUTION: **RERUN DEPENDENCIES DOCUMENTED**
+- EXECUTED: **YES — EXP-001 RESULTS RECORDED**
+- EMPIRICALLY COMPLETE: **YES — WITH STATED LIMITATIONS**
 
-No empirical results are present or claimed.
+The completed EXP-001 empirical results are reported in the main research documentation.
