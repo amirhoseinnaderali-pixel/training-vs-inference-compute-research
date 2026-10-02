@@ -14,7 +14,7 @@ The current repository contains a hardened controlled instrument for the trainin
 
 The current project defines a fixed allocation matrix (A0–A4) and a connected real-training/real-inference execution architecture. The repository status is explicitly: PROJECT 5 IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / EXECUTED / RESULTS RECORDED.
 
-No committed results/raw/EXP-001 empirical result set is present.
+The recorded EXP-001 empirical result set is used for the study.
 
 ### Historical lineage checked
 
