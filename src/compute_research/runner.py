@@ -33,7 +33,7 @@ def _failure_status(exc):
     name=type(exc).__name__.lower()
     if "evaluat" in name or "docker" in str(exc).lower(): return "evaluation_failure"
     if "config" in name or "benchmark" in str(exc).lower() or "provenance" in str(exc).lower(): return "configuration_failure"
-    if "model" in name or "token" in name.lower(): return "model_failure"
+    if "model" in name or "token" in name.lower() or "model" in str(exc).lower(): return "model_failure"
     return "runtime_failure"
 
 def run_one(config_path,condition_id,seed,task_limit=None,results_root=None,smoke=False):
