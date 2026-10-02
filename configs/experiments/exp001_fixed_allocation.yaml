@@ -16,6 +16,11 @@ benchmark:
   task_count: 100
   visible_hidden_policy: deterministic_assertion_split
   contamination_policy: document provenance; do not claim exact absence
+compute_budget:
+  total_target_estimated_flops: 1000000000000000
+  training_flops_formula: "6 * parameter_count * training_tokens"
+  inference_flops_formula: "2 * parameter_count * inference_tokens"
+  accounting_note: "Formulas are pre-registered budget estimates; measured FLOPs remain separate and are never replaced by this estimate."
 training:
   dataset_id: open-r1/codeforces-cots
   dataset_version: solutions_py_decontaminated@387653d830af3c298723ce21826c39877b50b783
@@ -40,11 +45,11 @@ inference:
   max_verifier_calls: 0
   max_wall_seconds: 3600
 allocation_matrix:
-  - {condition_id: A0, training_fraction: 0.10, inference_fraction: 0.90, training_budget_steps: 3, training_tokens: 10822, inference_tokens: 292207, inference_model_calls: 16}
-  - {condition_id: A1, training_fraction: 0.30, inference_fraction: 0.70, training_budget_steps: 8, training_tokens: 32467, inference_tokens: 227272, inference_model_calls: 12}
-  - {condition_id: A2, training_fraction: 0.50, inference_fraction: 0.50, training_budget_steps: 13, training_tokens: 54112, inference_tokens: 162337, inference_model_calls: 8}
-  - {condition_id: A3, training_fraction: 0.70, inference_fraction: 0.30, training_budget_steps: 18, training_tokens: 75757, inference_tokens: 97402, inference_model_calls: 4}
-  - {condition_id: A4, training_fraction: 0.90, inference_fraction: 0.10, training_budget_steps: 24, training_tokens: 97402, inference_tokens: 32467, inference_model_calls: 1}
+  - {condition_id: A0, training_fraction: 0.10, inference_fraction: 0.90, training_budget_steps: 3, training_tokens: 10822, training_estimated_flops: 100000000000000, inference_tokens: 292207, inference_estimated_flops: 900000000000000, inference_model_calls: 16}
+  - {condition_id: A1, training_fraction: 0.30, inference_fraction: 0.70, training_budget_steps: 8, training_tokens: 32467, training_estimated_flops: 300000000000000, inference_tokens: 227272, inference_estimated_flops: 700000000000000, inference_model_calls: 12}
+  - {condition_id: A2, training_fraction: 0.50, inference_fraction: 0.50, training_budget_steps: 13, training_tokens: 54112, training_estimated_flops: 500000000000000, inference_tokens: 162337, inference_estimated_flops: 500000000000000, inference_model_calls: 8}
+  - {condition_id: A3, training_fraction: 0.70, inference_fraction: 0.30, training_budget_steps: 18, training_tokens: 75757, training_estimated_flops: 700000000000000, inference_tokens: 97402, inference_estimated_flops: 300000000000000, inference_model_calls: 4}
+  - {condition_id: A4, training_fraction: 0.90, inference_fraction: 0.10, training_budget_steps: 24, training_tokens: 97402, training_estimated_flops: 900000000000000, inference_tokens: 32467, inference_estimated_flops: 100000000000000, inference_model_calls: 1}
 seeds: [42, 43, 44]
 evaluation:
   final_evaluator: independent_hidden_executor_v1
