@@ -1,57 +1,56 @@
 from pathlib import Path
-import time
+import time,json,platform,sys
+from .budget import BudgetViolation
 
 class RealDependencyError(RuntimeError): pass
-
 def _deps():
     try:
         import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer
-    except ImportError as e:
-        raise RealDependencyError("real mode requires torch, transformers, and accelerate") from e
-    return torch,AutoModelForCausalLM,AutoTokenizer,TrainingArguments,Trainer
-
-class HuggingFaceInferenceAdapter:
-    def __init__(self, model_id, revision):
-        _, AutoModel, AutoTokenizer, _, _ = _deps()
-        self.tokenizer=AutoTokenizer.from_pretrained(model_id,revision=revision)
-        self.model=AutoModel.from_pretrained(model_id,revision=revision,torch_dtype="auto",device_map="auto")
-        self.model.eval()
-
-    def generate(self,prompt,max_new_tokens,seed):
-        torch,_,_,_,_= _deps()
-        torch.manual_seed(seed)
-        inputs=self.tokenizer(prompt,return_tensors="pt").to(self.model.device)
-        start=time.perf_counter()
-        with torch.inference_mode():
-            out=self.model.generate(**inputs,max_new_tokens=max_new_tokens,do_sample=True)
-        text=self.tokenizer.decode(out[0][inputs["input_ids"].shape[-1]:],skip_special_tokens=True)
-        return {"text":text,"input_tokens":int(inputs["input_ids"].shape[-1]),"output_tokens":int(out.shape[-1]-inputs["input_ids"].shape[-1]),"wall_seconds":time.perf_counter()-start}
+        from transformers import AutoModelForCausalLM,AutoTokenizer
+        from datasets import load_dataset
+    except ImportError as e: raise RealDependencyError("real mode requires torch, transformers, datasets") from e
+    return torch,AutoModelForCausalLM,AutoTokenizer,load_dataset
 
 class HuggingFaceSFTAdapter:
-    def train(self, model_id, revision, dataset_id, dataset_revision, output_dir, max_steps, seed, learning_rate, batch_size, gradient_accumulation, sequence_length):
-        torch,AutoModel,AutoTokenizer,TrainingArguments,Trainer=_deps()
-        try:
-            from datasets import load_dataset
-        except ImportError as e:
-            raise RealDependencyError("real mode requires datasets") from e
-        tokenizer=AutoTokenizer.from_pretrained(model_id,revision=revision)
+    def train(self,*,model_id,revision,dataset_id,dataset_revision,dataset_config,output_dir,token_budget,max_steps,batch_size,gradient_accumulation,sequence_length,learning_rate,seed,max_flops,max_wall_seconds,provenance):
+        torch,AutoModel,AutoTokenizer,load_dataset=_deps()
+        if batch_size!=1: raise ValueError("scientific token contract requires batch_size=1")
+        torch.manual_seed(seed); tok=AutoTokenizer.from_pretrained(model_id,revision=revision)
+        if tok.pad_token_id is None: tok.pad_token=tok.eos_token
         model=AutoModel.from_pretrained(model_id,revision=revision,torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32)
-        ds=load_dataset(dataset_id,revision=dataset_revision,split="train")
+        ds=load_dataset(dataset_id,dataset_config,revision=dataset_revision,split="train").shuffle(seed=seed)
+        optimizer=torch.optim.AdamW(model.parameters(),lr=learning_rate)
+        model.train(); start=time.perf_counter(); realized_tokens=0; steps=0; micro=0
+        for row in ds:
+            if realized_tokens>=token_budget: break
+            text="\n".join(str(m.get("content","")) for m in row["messages"]) if "messages" in row else str(row.get("prompt",""))+"\n"+str(row.get("generation",""))
+            ids=tok(text,return_tensors="pt",truncation=True,max_length=sequence_length)["input_ids"].to(model.device)
+            if ids.shape[1]==0: continue
+            remaining=token_budget-realized_tokens; ids=ids[:,:min(ids.shape[1],remaining)]
+            used=int(ids.shape[1]); out=model(input_ids=ids,labels=ids); out.loss.backward()
+            realized_tokens+=used; micro+=1
+            if micro>=gradient_accumulation or realized_tokens>=token_budget:
+                optimizer.step(); optimizer.zero_grad(set_to_none=True); steps+=1; micro=0
+            elapsed=time.perf_counter()-start; est_flops=6*model.config.num_parameters*realized_tokens
+            if steps>max_steps: raise BudgetViolation("training","optimizer_steps",steps,max_steps)
+            if est_flops>max_flops: raise BudgetViolation("training","flops",est_flops,max_flops)
+            if elapsed>max_wall_seconds: raise BudgetViolation("training","wall_seconds",elapsed,max_wall_seconds)
+        elapsed=time.perf_counter()-start; est_flops=6*model.config.num_parameters*realized_tokens
+        if realized_tokens!=token_budget: raise BudgetViolation("training","token_budget_not_fully_consumed",realized_tokens,token_budget)
+        if steps>max_steps or est_flops>max_flops or elapsed>max_wall_seconds: raise BudgetViolation("training","postcondition",1,0)
+        outdir=Path(output_dir); outdir.mkdir(parents=True,exist_ok=False); model.save_pretrained(outdir); tok.save_pretrained(outdir)
+        meta={**provenance,"checkpoint_id":outdir.name,"training_tokens":realized_tokens,"optimizer_steps":steps,"estimated_training_flops":est_flops,"training_wall_seconds":elapsed,"environment":{"python":sys.version,"platform":platform.platform(),"torch":torch.__version__,"cuda":torch.cuda.is_available()}}
+        (outdir/"provenance.json").write_text(json.dumps(meta,indent=2,sort_keys=True))
+        return {"checkpoint":str(outdir),"training_tokens":realized_tokens,"optimizer_steps":steps,"estimated_training_flops":est_flops,"training_wall_seconds":elapsed}
 
-        def render(row):
-            if "messages" in row:
-                return {"text":"\n".join(str(m.get("content","")) for m in row["messages"])}
-            if "prompt" in row and "generation" in row:
-                return {"text":str(row["prompt"])+"\n"+str(row["generation"])}
-            raise ValueError("dataset row lacks a supported text representation")
-
-        ds=ds.map(render)
-        def tokenize(batch):
-            return tokenizer(batch["text"],truncation=True,max_length=sequence_length)
-        tok=ds.map(tokenize,batched=True,remove_columns=ds.column_names)
-        args=TrainingArguments(output_dir=str(Path(output_dir)),max_steps=max_steps,learning_rate=learning_rate,per_device_train_batch_size=batch_size,gradient_accumulation_steps=gradient_accumulation,logging_steps=1,save_strategy="no",report_to=[],bf16=torch.cuda.is_available(),seed=seed)
-        trainer=Trainer(model=model,args=args,train_dataset=tok,tokenizer=tokenizer)
-        start=time.perf_counter(); trainer.train(); elapsed=time.perf_counter()-start
-        trainer.save_model(output_dir); tokenizer.save_pretrained(output_dir)
-        return {"checkpoint":str(output_dir),"wall_seconds":elapsed,"steps":max_steps}
+class HuggingFaceInferenceAdapter:
+    def __init__(self,model_id,revision,checkpoint=None):
+        torch,AutoModel,AutoTokenizer,_=_deps(); self.torch=torch
+        self.tokenizer=AutoTokenizer.from_pretrained(checkpoint or model_id,revision=None if checkpoint else revision)
+        self.model=AutoModel.from_pretrained(checkpoint or model_id,torch_dtype="auto",device_map="auto"); self.model.eval()
+    def generate(self,prompt,max_new_tokens,seed):
+        self.torch.manual_seed(seed); inputs=self.tokenizer(prompt,return_tensors="pt",truncation=True,max_length=16000).to(self.model.device)
+        start=time.perf_counter()
+        with self.torch.inference_mode(): out=self.model.generate(**inputs,max_new_tokens=max_new_tokens,do_sample=True)
+        elapsed=time.perf_counter()-start
+        return {"text":self.tokenizer.decode(out[0][inputs["input_ids"].shape[-1]:],skip_special_tokens=True),"input_tokens":int(inputs["input_ids"].shape[-1]),"output_tokens":int(out.shape[-1]-inputs["input_ids"].shape[-1]),"wall_seconds":elapsed}
