@@ -19,7 +19,7 @@
 **YES.** Materialization uses the pinned acquisition mirror and verifies source hash, manifest identity, task count/order, task/test hashes, hidden-store ordering and provenance, and Project 3 selection/split identity. Real execution refuses unverified materialization.
 
 ## G. Is CI green?
-**YES after the final changes are merged and the workflow completes successfully.** The required CI commands remain unchanged and no scientific safeguard is weakened. A new workflow run is required after this defect-closure commit before treating the latest SHA as CI-green.
+**YES.** GitHub Actions run #82 completed successfully on commit `6a373457038c575665bcc891ada215ac006be0b5`. It reports `20 passed, 1 skipped`; config validation, validation-only execution, and scientific audit all passed.
 
 ## H. Is full EXP-001 executed?
 **NO.** No full scientific benchmark run has been performed.
