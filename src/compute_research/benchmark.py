@@ -58,3 +58,10 @@ def load_materialized(path:Path,hidden_path:Path,manifest_path:Path)->Benchmark:
     m=json.loads(manifest_path.read_text())
     b=Benchmark(m["benchmark_id"],m["version"],tuple(tasks),sha256_file(manifest_path),m["provenance"]["source_archive_sha256"],"provenance documented; exact zero contamination is not claimed")
     b.assert_integrity(m["task_count"]); return b
+
+
+def synthetic_validation_benchmark():
+    tasks=tuple(BenchmarkTask(f"V{i}",f"validation task {i}","f","def check(candidate):\n    assert candidate()==1","def check(candidate):\n    assert candidate()==1","synthetic","synthetic") for i in range(4))
+    b=Benchmark("synthetic-4-v1","1.0",tasks,"synthetic-manifest","synthetic-source","validation only")
+    b.assert_integrity(4)
+    return b
