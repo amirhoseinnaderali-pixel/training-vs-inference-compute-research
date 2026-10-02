@@ -16,6 +16,8 @@ Seeds: 42, 43, 44.
 | A3 | 70% | 30% | 75,757 | 18 | 97,402 | 4 |
 | A4 | 90% | 10% | 97,402 | 24 | 32,467 | 1 |
 
-The fractions are the frozen allocation coordinates. Integer token budgets produce a small rounding remainder below the 1e15 estimated-FLOP envelope. Training token budget is primary; optimizer steps are a hard maximum. Training uses a token stream and consumes the exact declared token budget before checkpointing. Inference consumes the exact declared total input+output token budget, subject to the frozen per-call safety cap.
+The fractions are the frozen allocation coordinates. Integer token budgets produce a small rounding remainder below the 1e15 estimated-FLOP envelope. Training token budget is primary; optimizer steps are a hard maximum. Training uses a token stream and consumes the exact declared token budget before checkpointing. Inference consumes the exact declared total input+output token budget, subject to the frozen per-call safety caps.
 
-Primary outcome: objective hidden correctness per task. Secondary outcomes: all raw compute dimensions. Hidden evaluation occurs only after candidate generation and never influences selection (there is no hidden-informed selection).
+Registered primary outcome: `any_candidate_passes_hidden`. For each task × seed × condition, it is 1 iff at least one generated candidate passes the independent hidden evaluator after all candidate generation is complete. Candidate-level correctness is retained only as a secondary field.
+
+Hidden evaluation occurs only after candidate generation and never influences selection. No empirical result is claimed by this repository state.
