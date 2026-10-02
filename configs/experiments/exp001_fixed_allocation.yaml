@@ -24,7 +24,7 @@ compute_budget:
 training:
   dataset_id: open-r1/codeforces-cots
   dataset_version: solutions_py_decontaminated@387653d830af3c298723ce21826c39877b50b783
-  dataset_sha256: 1bc738abc0ac48f25618685992b25912a28115268685cdfd27ec600edfe3c9e6
+  dataset_manifest_sha256: 8108fd0f14d1d4045fcd85e86053ae78d91fb7ff24a38982f7363101d901f672
   optimizer: AdamW
   learning_rate: 0.00002
   scheduler: cosine
@@ -38,8 +38,8 @@ training:
   max_wall_seconds: 86400
 inference:
   max_model_calls: 16
-  max_input_tokens: 16000
-  max_output_tokens: 16000
+  max_input_tokens_per_call: 16000
+  max_output_tokens_per_call: 16000
   max_candidates: 8
   max_reasoning_rounds: 4
   max_verifier_calls: 0
