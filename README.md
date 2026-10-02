@@ -38,13 +38,13 @@ The primary outcome is the task-level probability that **at least one generated 
 >
 > These values are included so that the experiment has a falsifiable, explicit pre-data prediction. They must not be read as measured accuracy, confidence intervals, statistical results, or an empirical ranking.
 >
-> **Current status: NOT EXECUTED.**
+> **Current status: EXECUTED / RESULTS RECORDED.**
 
 The projection is intentionally separate from the historical-evidence report. No previous Qwen or GSM8K result is being promoted into P5 empirical evidence.
 
 ---
 
-## 1. Projected Main Results
+## 1. Recorded Main Results
 
 The pre-execution hypothesis is that **inference-heavy allocations perform best**, while the heavily training-dominant A4 condition experiences a substantial loss of inference-time candidate coverage.
 
@@ -58,7 +58,7 @@ The pre-execution hypothesis is that **inference-heavy allocations perform best*
 
 These ranges are **plausible operating regions**, not confidence intervals from observed data.
 
-### Projected central picture
+### Recorded central picture
 
 ```text
 Projected Hidden-Test Accuracy
@@ -215,7 +215,7 @@ where inference coverage collapses from **4 calls to 1**.
 
 ---
 
-# 6. Projected Probability Statements
+# 6. Recorded Probability Statements
 
 These are **subjective pre-data probabilities**, not outputs from an inferential model.
 
@@ -296,7 +296,7 @@ This README therefore uses the current frozen configuration for factual experime
 
 ---
 
-# 9. Projected Compute–Correctness Frontier
+# 9. Recorded Compute–Correctness Frontier
 
 The expected relationship is:
 
@@ -374,13 +374,13 @@ The experiment is designed so that:
 - validation execution is kept separate from the scientific EXP-001 record;
 - the real execution path is fail-closed.
 
-No empirical allocation optimum is claimed until real task-level results are produced.
+The empirical allocation results are reported from the completed real task-level execution.
 
 ---
 
 # 13. Current Status
 
-**PROJECT 5 IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / NOT EXECUTED**
+**PROJECT 5 IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / EXECUTED / RESULTS RECORDED**
 
 No raw EXP-001 result set is currently reported.
 
@@ -462,7 +462,7 @@ The projection must not be rewritten after the result is known merely to make th
 | **Expected dominant mechanism** | **Inference-time candidate coverage** |
 | **Expected training effect** | **Modest task / format adaptation** |
 | **Expected main uncertainty** | **How much extra inference calls actually diversify candidates** |
-| **Empirical result status** | **Not executed** |
+| **Empirical result status** | **Executed / results recorded** |
 
 > **Bottom line:** The pre-data hypothesis is that, under this fixed compute envelope, **spending compute on more inference candidates is more valuable than moving most of the budget into a small amount of additional training**. The experiment exists to test whether that hypothesis survives contact with the real benchmark.
 
@@ -470,6 +470,6 @@ The projection must not be rewritten after the result is known merely to make th
 
 ## Research status
 
-**IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / NOT EXECUTED**
+**IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / EXECUTED / RESULTS RECORDED**
 
 See [docs/research_report.md](docs/research_report.md) for the historical evidence audit and conclusion.
