@@ -20,24 +20,36 @@ class HuggingFaceSFTAdapter:
         model=AutoModel.from_pretrained(model_id,revision=revision,torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32)
         ds=load_dataset(dataset_id,dataset_config,revision=dataset_revision,split="train").shuffle(seed=seed)
         optimizer=torch.optim.AdamW(model.parameters(),lr=learning_rate)
-        model.train(); start=time.perf_counter(); realized_tokens=0; steps=0; micro=0
+        model.train(); start=time.perf_counter(); realized_tokens=0; steps=0; micro=0; buffer=[]
         for row in ds:
             if realized_tokens>=token_budget: break
             text="\n".join(str(m.get("content","")) for m in row["messages"]) if "messages" in row else str(row.get("prompt",""))+"\n"+str(row.get("generation",""))
-            ids=tok(text,return_tensors="pt",truncation=True,max_length=sequence_length)["input_ids"].to(model.device)
-            if ids.shape[1]==0: continue
-            remaining=token_budget-realized_tokens; ids=ids[:,:min(ids.shape[1],remaining)]
-            used=int(ids.shape[1]); out=model(input_ids=ids,labels=ids); out.loss.backward()
-            realized_tokens+=used; micro+=1
-            if micro>=gradient_accumulation or realized_tokens>=token_budget:
-                optimizer.step(); optimizer.zero_grad(set_to_none=True); steps+=1; micro=0
-            elapsed=time.perf_counter()-start; est_flops=6*model.config.num_parameters*realized_tokens
-            if steps>max_steps: raise BudgetViolation("training","optimizer_steps",steps,max_steps)
-            if est_flops>max_flops: raise BudgetViolation("training","flops",est_flops,max_flops)
-            if elapsed>max_wall_seconds: raise BudgetViolation("training","wall_seconds",elapsed,max_wall_seconds)
+            ids=tok(text,return_tensors="pt",truncation=False)["input_ids"][0].tolist()
+            buffer.extend(ids)
+            while len(buffer)>=sequence_length and realized_tokens<token_budget:
+                remaining=token_budget-realized_tokens
+                take=min(sequence_length,remaining); chunk=buffer[:take]; buffer=buffer[take:]
+                x=torch.tensor([chunk],device=model.device)
+                out=model(input_ids=x,labels=x); out.loss.backward()
+                realized_tokens+=take; micro+=1
+                if micro>=gradient_accumulation or realized_tokens>=token_budget:
+                    optimizer.step(); optimizer.zero_grad(set_to_none=True); steps+=1; micro=0
+                elapsed=time.perf_counter()-start; est_flops=6*model.config.num_parameters*realized_tokens
+                if steps>max_steps: raise BudgetViolation("training","optimizer_steps",steps,max_steps)
+                if est_flops>max_flops: raise BudgetViolation("training","flops",est_flops,max_flops)
+                if elapsed>max_wall_seconds: raise BudgetViolation("training","wall_seconds",elapsed,max_wall_seconds)
+                if realized_tokens>=token_budget: break
+        if realized_tokens<token_budget:
+            remaining=token_budget-realized_tokens
+            if remaining>0 and buffer:
+                chunk=buffer[:remaining]; x=torch.tensor([chunk],device=model.device); out=model(input_ids=x,labels=x); out.loss.backward()
+                realized_tokens+=len(chunk); micro+=1
+        if micro: optimizer.step(); optimizer.zero_grad(set_to_none=True); steps+=1
         elapsed=time.perf_counter()-start; est_flops=6*model.config.num_parameters*realized_tokens
         if realized_tokens!=token_budget: raise BudgetViolation("training","token_budget_not_fully_consumed",realized_tokens,token_budget)
-        if steps>max_steps or est_flops>max_flops or elapsed>max_wall_seconds: raise BudgetViolation("training","postcondition",1,0)
+        if steps>max_steps: raise BudgetViolation("training","optimizer_steps",steps,max_steps)
+        if est_flops>max_flops: raise BudgetViolation("training","flops",est_flops,max_flops)
+        if elapsed>max_wall_seconds: raise BudgetViolation("training","wall_seconds",elapsed,max_wall_seconds)
         outdir=Path(output_dir); outdir.mkdir(parents=True,exist_ok=False); model.save_pretrained(outdir); tok.save_pretrained(outdir)
         meta={**provenance,"checkpoint_id":outdir.name,"training_tokens":realized_tokens,"optimizer_steps":steps,"estimated_training_flops":est_flops,"training_wall_seconds":elapsed,"environment":{"python":sys.version,"platform":platform.platform(),"torch":torch.__version__,"cuda":torch.cuda.is_available()}}
         (outdir/"provenance.json").write_text(json.dumps(meta,indent=2,sort_keys=True))
