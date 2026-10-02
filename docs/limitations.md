@@ -1,5 +1,9 @@
 # Limitations
 
-HumanEval is a programming benchmark and is not a universal measure of reasoning. Exact zero contamination cannot be established from provenance alone. FLOP estimates may be unavailable. Wall-clock is environment dependent. The five-point allocation matrix samples the allocation surface rather than proving a global optimum.
+HumanEval is a programming benchmark and does not establish general reasoning capability. Exact zero contamination cannot be claimed. The training dataset is provenance-tracked and its published decontamination procedure is documented, but residual overlap with this specific 100-task benchmark is not independently measured here.
 
-Results, if later executed, support a bounded empirical comparison only.
+The fixed 1e15 envelope uses token-based FLOP estimates, not hardware-measured FLOPs. Actual hardware FLOPs may differ.
+
+EXP-001 is intentionally expensive because the experimental unit is task x seed x allocation: each unit receives its own training budget before its inference budget. This prevents amortizing one training run across 100 tasks and changing the allocation being tested.
+
+The five allocation conditions sample the allocation surface; they do not prove a global optimum.
