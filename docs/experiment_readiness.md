@@ -1,16 +1,15 @@
 # EXP-001 readiness
 
-The frozen experiment is executable in software but real execution is currently blocked until runtime prerequisites exist.
+The main CLI is connected to the real runner. Execution modes are explicit:
 
-Required gates:
-1. Materialized benchmark exists and matches the vendored Project 3 manifest.
-2. Hidden assertions exist in a separate evaluator-only file.
-3. Docker is available for independent hidden evaluation.
-4. The exact frozen Qwen model/tokenizer revision is available.
-5. The exact frozen open-r1 dataset revision and provenance manifest are available.
-6. A reproducible Git SHA is available.
-7. Mock execution remains disabled in real mode.
+- `--mode validation`: synthetic/mock only; never scientific evidence.
+- `--mode smoke`: real model, real training, real inference, and independent hidden evaluation on one task/seed; artifacts go under `results/smoke/`.
+- `--mode real`: full frozen EXP-001; artifacts go under `results/raw/EXP-001/`.
 
-The frozen model and dataset are public Hugging Face resources, so no provider credential is required. A credential would become required only if the frozen resources were changed to gated/private resources; that would invalidate the frozen experiment.
+Real execution is fail-closed. Required gates are: materialized benchmark, benchmark/manifest integrity, evaluator-only hidden store, frozen model and tokenizer revisions, frozen dataset/provenance, Docker daemon, CUDA, real runtime dependencies, reproducible Git SHA, fail_closed=true, and mock disabled.
 
-No real training, inference, or hidden evaluation is claimed until these gates pass.
+The frozen model and dataset are public Hugging Face resources, so no provider credential is required. A credential would become required only for a gated/private resource.
+
+The benchmark manifest is cross-checked against the Project 3 frozen identity: HumanEval source commit, acquisition mirror, selection policy, deterministic assertion split, task ordering, task hashes, and test hashes.
+
+No real training, inference, hidden evaluation, or empirical evidence is claimed unless the corresponding mode actually completes.
