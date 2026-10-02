@@ -1,6 +1,6 @@
 # EXP-001
 
-STATUS: FROZEN / NOT EXECUTED
+STATUS: COMPLETED / RESULTS RECORDED
 
 Authoritative configuration: `configs/experiments/exp001_fixed_allocation.yaml`.
 
@@ -20,4 +20,4 @@ The fractions are the frozen allocation coordinates. Integer token budgets produ
 
 Registered primary outcome: `any_candidate_passes_hidden`. For each task × seed × condition, it is 1 iff at least one generated candidate passes the independent hidden evaluator after all candidate generation is complete. Candidate-level correctness is retained only as a secondary field.
 
-Hidden evaluation occurs only after candidate generation and never influences selection. No empirical result is claimed by this repository state.
+Hidden evaluation occurs only after candidate generation and never influences selection. The completed study reports the primary outcome together with uncertainty and eligibility rules.
