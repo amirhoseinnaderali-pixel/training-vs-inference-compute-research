@@ -11,7 +11,7 @@ model:
   precision: bf16
 benchmark:
   id: humaneval-stratified-100-v1
-  manifest_blob_sha: 9c3d-frozen-project3-manifest
+  manifest_blob_sha: 1837f72545998ffd31a36f5e5a5952363d9f4718
   source_commit: 6d43fb980f9fee3c892a914eda09951f772ad10d
   task_count: 100
   visible_hidden_policy: deterministic_assertion_split
