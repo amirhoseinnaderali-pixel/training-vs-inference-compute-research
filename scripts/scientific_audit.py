@@ -1,4 +1,5 @@
 from pathlib import Path
+import ast
 from compute_research.config import load_config
 c=load_config("configs/experiments/exp001_fixed_allocation.yaml")
 checks=[
@@ -15,5 +16,5 @@ checks=[
  Path("src/compute_research/runner.py").read_text().find("HuggingFaceSFTAdapter")>=0,
  Path("src/compute_research/runner.py").read_text().find("HuggingFaceInferenceAdapter")>=0,
 ]
-for name,ok in zip(["frozen_matrix","condition_order","allocation_sum","hidden_isolation","final_selection_isolation","mock_blocked","fail_closed","public_hf_credential_policy","dataset_provenance","benchmark_manifest","real_training_adapter","real_inference_adapter"],checks): print("PASS" if ok else "FAIL",name)
+for name,ok in zip(["frozen_matrix","condition_order","allocation_sum","hidden_isolation","final_selection_isolation","mock_blocked","fail_closed","public_hf_credential_policy","dataset_provenance","benchmark_manifest","real_training_adapter","real_inference_adapter","cli_runner","smoke_entrypoint","materialization_gate"],checks): print("PASS" if ok else "FAIL",name)
 raise SystemExit(0 if all(checks) else 1)
