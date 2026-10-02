@@ -94,3 +94,10 @@ def verify_materialized(path:Path, hidden_path:Path, manifest_path:Path)->None:
     mirror=manifest["provenance"]["acquisition_mirror"]
     if mirror["repository"]!="nerdskingcom/gguf-humaneval-benchmark" or mirror["branch_sha"]!="7e5a3ceb7b8ab4d94714098fad566ef4c487a605":
         raise ValueError("unexpected pinned acquisition mirror")
+    if manifest.get("selection_policy",{}).get("type")!="stratified_source_order":
+        raise ValueError("selection policy differs from Project 3 frozen benchmark")
+    split=manifest.get("evaluation_split_policy",{})
+    if split.get("type")!="deterministic_assertion_split" or split.get("visible_rule")!="first ceil(n/2) top-level assert statements" or split.get("hidden_rule")!="remaining top-level assert statements":
+        raise ValueError("evaluation split policy differs from Project 3 frozen benchmark")
+    if manifest.get("integrity",{}).get("manifest_content_sha256")!="b14dc4fbe6b8dd0a31764cc66cb9446473cf942f676a24205fbd9965c481a798":
+        raise ValueError("Project 3 benchmark manifest identity mismatch")
