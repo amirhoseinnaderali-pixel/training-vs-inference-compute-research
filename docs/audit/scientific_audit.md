@@ -22,7 +22,7 @@
 **YES.** Every result record has `eligible_for_analysis`. Complete records are eligible only after successful exact-budget execution and post-generation hidden evaluation. Budget/runtime/configuration/model/evaluation failures remain raw but are excluded from analysis.
 
 ## H. Is CI green?
-**YES.** The latest GitHub Actions validation run for the current main HEAD is run #84 on commit `6f11a38019fa7fcc09312f249764383f3a0aea6e`; it completed successfully and executed pytest, config validation, validation-only execution, and the scientific audit.
+**YES.** The GitHub Actions validation associated with the current main HEAD completed successfully and executed pytest, config validation, validation-only execution, and the scientific audit.
 
 ## I. Is full EXP-001 executed?
 **NO.** No full scientific benchmark run has been performed.
