@@ -52,6 +52,9 @@ allocation_matrix:
   - {condition_id: A4, training_fraction: 0.90, inference_fraction: 0.10, training_budget_steps: 24, training_tokens: 97402, training_estimated_flops: 899994480000000, inference_tokens: 32467, inference_estimated_flops: 99998360000000, inference_model_calls: 1}
 seeds: [42, 43, 44]
 evaluation:
+  primary_outcome:
+    estimand: any_candidate_passes_hidden
+    definition: "For each task-seed-condition unit, primary correctness is 1 iff at least one generated candidate passes the independent hidden evaluator after candidate generation is complete."
   final_evaluator: independent_hidden_executor_v1
   hidden_results_visible_to_strategy: false
   final_results_used_for_selection: false
