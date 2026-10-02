@@ -1,0 +1,12 @@
+experiment_id: VALIDATION-001
+status: validation_only
+model: {model_id: mock-tiny, parameter_count: 1000}
+benchmark: {id: synthetic-4-v1, task_count: 4}
+training: {max_steps: 4, max_training_tokens: 128, max_training_flops: 1000000}
+inference: {max_model_calls: 4, max_input_tokens: 128, max_output_tokens: 128, max_candidates: 4, max_reasoning_rounds: 2}
+allocation_matrix:
+  - {condition_id: V0, training_fraction: 0.0, inference_fraction: 1.0, training_budget_steps: 0, inference_model_calls: 4}
+  - {condition_id: V1, training_fraction: 0.5, inference_fraction: 0.5, training_budget_steps: 2, inference_model_calls: 2}
+  - {condition_id: V2, training_fraction: 1.0, inference_fraction: 0.0, training_budget_steps: 4, inference_model_calls: 1}
+seeds: [42]
+execution: {validation_only: true, allow_mock: true, require_credentials: false, require_docker: false, fail_closed: true}
