@@ -2,12 +2,25 @@
 
 Every quantity is classified as measured, estimated, derived, or unavailable.
 
-Track training tokens, inference input/output tokens, training/inference/total FLOPs, optimizer steps, model calls, candidates, execution steps, training/inference/total wall-clock, and monetary cost proxy.
+Tracked quantities include training tokens, inference input/output tokens, training/inference/total FLOPs, optimizer steps, model calls, candidates, execution steps, training/inference/total wall-clock, and monetary cost proxy.
 
-Normalized allocation fractions are design coordinates only. They never replace raw compute dimensions.
+## EXP-001 allocation contract
 
-Budget overruns invalidate a run. Retries consume budget. Unknown pricing stays unavailable. No compute value is fabricated.
+The fixed envelope is 1e15 estimated FLOPs per experimental unit (one task x seed x allocation condition). The frozen estimates use:
 
-## EXP-001 budget envelope
+- training: `6 * parameter_count * training_tokens`
+- inference: `2 * parameter_count * (input_tokens + output_tokens)`
 
-The frozen design uses a 1e15 FLOP estimated envelope with model parameter count 1.54B. Training budget FLOPs are estimated as 6*N*training_tokens; inference budget FLOPs are estimated as 2*N*inference_tokens. These are pre-registered allocation coordinates, not measured hardware FLOPs. Measured training and inference FLOPs remain separate result fields. Each allocation row reserves 10%, 30%, 50%, 70%, or 90% of the estimated envelope for training, with the complement assigned to inference.
+The allocation matrix supplies exact token budgets. Integer token rounding leaves a small remainder below the envelope; no condition exceeds 1e15 estimated FLOPs.
+
+## Training
+
+Training-token budget is primary. The runner consumes the exact declared token budget from a token stream. Optimizer steps are a hard upper bound, not the primary compute coordinate. Actual optimizer steps and realized tokens are recorded separately.
+
+## Inference
+
+Inference-token budget is primary. For every task, the runner reserves the full declared input+output token budget across the declared model-call count. Generation is forced to the reserved output quota; retries consume the same budget.
+
+## Measurement status
+
+Estimated FLOPs are never relabeled as measured hardware FLOPs. Wall-clock and hardware counters are recorded as measured when available. Monetary cost remains unavailable unless a documented price source and usage measurement are supplied.
