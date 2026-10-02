@@ -1,12 +1,17 @@
 import sys
 from pathlib import Path
+import importlib.util
 import pytest
 
 ROOT=Path(__file__).parents[1]
 sys.path.insert(0,str(ROOT/"src"))
 
+def _load_script(name):
+    spec=importlib.util.spec_from_file_location(name,ROOT/"scripts"/f"{name}.py")
+    mod=importlib.util.module_from_spec(spec); spec.loader.exec_module(mod); return mod
+
 def test_cli_real_mode_is_connected_to_runner(monkeypatch):
-    import scripts.run_experiment as cli
+    cli=_load_script("run_experiment")
     seen=[]
     monkeypatch.setattr(cli,"run_experiment",lambda config: seen.append(config) or ["run"])
     monkeypatch.setattr(sys,"argv",["run_experiment.py","--config","configs/experiments/exp001_fixed_allocation.yaml","--mode","real"])
@@ -14,7 +19,7 @@ def test_cli_real_mode_is_connected_to_runner(monkeypatch):
     assert seen==["configs/experiments/exp001_fixed_allocation.yaml"]
 
 def test_smoke_entrypoint_is_real_runner(monkeypatch):
-    import scripts.run_smoke_test as smoke
+    smoke=_load_script("run_smoke_test")
     seen=[]
     monkeypatch.setattr(smoke,"run_smoke",lambda config,condition,seed: seen.append((config,condition,seed)) or "ok")
     monkeypatch.setattr(sys,"argv",["run_smoke_test.py"])
