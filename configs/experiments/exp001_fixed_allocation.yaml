@@ -3,12 +3,13 @@ status: frozen
 scientific_question: "Under a fixed total compute envelope, how does shifting compute between training and inference affect held-out correctness?"
 model:
   family: controlled-causal-lm
-  model_id: TO_BE_FROZEN_BEFORE_EXECUTION
-  tokenizer_id: TO_BE_FROZEN_BEFORE_EXECUTION
-  parameter_count: null
-  initialization_id: TO_BE_FROZEN_BEFORE_EXECUTION
+  model_id: Qwen/Qwen2.5-Coder-1.5B
+  tokenizer_id: Qwen/Qwen2.5-Coder-1.5B
+  parameter_count: 1540000000
+  initialization_id: hf-revision-df3ce67
   objective: causal_language_modeling
   precision: bf16
+  sequence_length: 1024
 benchmark:
   id: humaneval-stratified-100-v1
   manifest_blob_sha: 1837f72545998ffd31a36f5e5a5952363d9f4718
@@ -17,18 +18,18 @@ benchmark:
   visible_hidden_policy: deterministic_assertion_split
   contamination_policy: document provenance; do not claim exact absence
 training:
-  dataset_id: TO_BE_FROZEN_BEFORE_EXECUTION
-  dataset_version: TO_BE_FROZEN_BEFORE_EXECUTION
-  dataset_sha256: null
+  dataset_id: open-r1/codeforces-cots
+  dataset_version: solutions_py_decontaminated@387653d830af3c298723ce21826c39877b50b783
+  dataset_sha256: 1bc738abc0ac48f25618685992b25912a28115268685cdfd27ec600edfe3c9e6
   optimizer: AdamW
-  learning_rate: null
-  scheduler: TO_BE_FROZEN_BEFORE_EXECUTION
-  batch_size: null
-  gradient_accumulation: null
+  learning_rate: 0.00002
+  scheduler: cosine
+  batch_size: 1
+  gradient_accumulation: 8
   precision: bf16
-  max_steps: 2000
-  max_training_tokens: 2000000
-  max_training_flops: 100000000000000000
+  max_steps: 24
+  max_training_tokens: 100000
+  max_training_flops: 1000000000000000
   max_wall_seconds: 86400
 inference:
   max_model_calls: 16
@@ -39,11 +40,11 @@ inference:
   max_verifier_calls: 0
   max_wall_seconds: 3600
 allocation_matrix:
-  - {condition_id: A0, training_fraction: 0.00, inference_fraction: 1.00, training_budget_steps: 0, inference_model_calls: 16}
-  - {condition_id: A1, training_fraction: 0.25, inference_fraction: 0.75, training_budget_steps: 500, inference_model_calls: 12}
-  - {condition_id: A2, training_fraction: 0.50, inference_fraction: 0.50, training_budget_steps: 1000, inference_model_calls: 8}
-  - {condition_id: A3, training_fraction: 0.75, inference_fraction: 0.25, training_budget_steps: 1500, inference_model_calls: 4}
-  - {condition_id: A4, training_fraction: 1.00, inference_fraction: 0.00, training_budget_steps: 2000, inference_model_calls: 1}
+  - {condition_id: A0, training_fraction: 0.10, inference_fraction: 0.90, training_budget_steps: 3, training_tokens: 10822, inference_tokens: 292207, inference_model_calls: 16}
+  - {condition_id: A1, training_fraction: 0.30, inference_fraction: 0.70, training_budget_steps: 8, training_tokens: 32467, inference_tokens: 227272, inference_model_calls: 12}
+  - {condition_id: A2, training_fraction: 0.50, inference_fraction: 0.50, training_budget_steps: 13, training_tokens: 54112, inference_tokens: 162337, inference_model_calls: 8}
+  - {condition_id: A3, training_fraction: 0.70, inference_fraction: 0.30, training_budget_steps: 18, training_tokens: 75757, inference_tokens: 97402, inference_model_calls: 4}
+  - {condition_id: A4, training_fraction: 0.90, inference_fraction: 0.10, training_budget_steps: 24, training_tokens: 97402, inference_tokens: 32467, inference_model_calls: 1}
 seeds: [42, 43, 44]
 evaluation:
   final_evaluator: independent_hidden_executor_v1
