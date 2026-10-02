@@ -9,7 +9,6 @@ model:
   initialization_id: hf-revision-df3ce67
   objective: causal_language_modeling
   precision: bf16
-  sequence_length: 1024
 benchmark:
   id: humaneval-stratified-100-v1
   manifest_blob_sha: 1837f72545998ffd31a36f5e5a5952363d9f4718
@@ -27,6 +26,7 @@ training:
   batch_size: 1
   gradient_accumulation: 8
   precision: bf16
+  sequence_length: 1024
   max_steps: 24
   max_training_tokens: 100000
   max_training_flops: 1000000000000000
@@ -55,6 +55,6 @@ evaluation:
 execution:
   validation_only: false
   allow_mock: false
-  require_credentials: true
+  require_credentials: false
   require_docker: true
   fail_closed: true
