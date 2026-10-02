@@ -60,9 +60,11 @@ class HuggingFaceInferenceAdapter:
         torch,AutoModel,AutoTokenizer,_=_deps(); self.torch=torch
         self.tokenizer=AutoTokenizer.from_pretrained(checkpoint or model_id,revision=None if checkpoint else revision)
         self.model=AutoModel.from_pretrained(checkpoint or model_id,torch_dtype="auto",device_map="auto"); self.model.eval()
+    def count_input_tokens(self,prompt):
+        return int(self.tokenizer(prompt,return_tensors="pt",truncation=True,max_length=16000)["input_ids"].shape[-1])
     def generate(self,prompt,max_new_tokens,seed):
         self.torch.manual_seed(seed); inputs=self.tokenizer(prompt,return_tensors="pt",truncation=True,max_length=16000).to(self.model.device)
         start=time.perf_counter()
-        with self.torch.inference_mode(): out=self.model.generate(**inputs,max_new_tokens=max_new_tokens,do_sample=True)
+        with self.torch.inference_mode(): out=self.model.generate(**inputs,max_new_tokens=max_new_tokens,min_new_tokens=max_new_tokens,do_sample=True,pad_token_id=self.tokenizer.pad_token_id)
         elapsed=time.perf_counter()-start
         return {"text":self.tokenizer.decode(out[0][inputs["input_ids"].shape[-1]:],skip_special_tokens=True),"input_tokens":int(inputs["input_ids"].shape[-1]),"output_tokens":int(out.shape[-1]-inputs["input_ids"].shape[-1]),"wall_seconds":elapsed}
