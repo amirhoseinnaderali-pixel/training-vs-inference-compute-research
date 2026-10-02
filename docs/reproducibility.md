@@ -1,5 +1,7 @@
 # Reproducibility contract
 
-Record experiment ID, unique run ID, git SHA, configuration hash, benchmark hash, training-data hash, model/version, seed, training and inference configuration, accounting configuration, package versions, hardware, runtime environment, and timestamps.
+Every empirical run records experiment ID, unique run ID, Git SHA, configuration hash, benchmark manifest hash, training-data provenance hash, model/revision, tokenizer revision, seed, allocation condition, training/inference budgets, realized compute, runtime environment, checkpoint provenance, and timestamps.
 
-Scientific result directories are unique and cannot silently overwrite previous runs.
+Checkpoint provenance is mandatory. A checkpoint without provenance.json containing frozen model/data/config/allocation metadata is not scientific evidence.
+
+Result directories are unique and refuse overwrite.
