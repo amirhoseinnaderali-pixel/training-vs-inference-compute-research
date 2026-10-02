@@ -37,7 +37,7 @@ def validate_config(c):
         if train+inf>c["compute_budget"]["total_target_estimated_flops"]: raise ValueError(f"{cid}: allocation exceeds total envelope")
     if c["execution"]["validation_only"] and c["experiment_id"].startswith("EXP-"): raise ValueError("scientific experiment cannot be validation_only")
     if not c["execution"]["validation_only"] and c["execution"]["allow_mock"]: raise ValueError("real config cannot allow mock")
-    if c["inference"]["max_candidates"] < max(r["inference_model_calls"] for r in c["allocation_matrix"]):
+    if not c["execution"]["validation_only"] and c["inference"]["max_candidates"] < max(r["inference_model_calls"] for r in c["allocation_matrix"]):
         raise ValueError("inference candidate ceiling must cover frozen model-call allocations")
-    if c["inference"]["max_reasoning_rounds"] < max(r["inference_model_calls"] for r in c["allocation_matrix"]):
+    if not c["execution"]["validation_only"] and c["inference"]["max_reasoning_rounds"] < max(r["inference_model_calls"] for r in c["allocation_matrix"]):
         raise ValueError("reasoning-round ceiling must cover one round per frozen model call")
