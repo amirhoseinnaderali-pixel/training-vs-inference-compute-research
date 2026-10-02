@@ -1,0 +1,59 @@
+experiment_id: EXP-001
+status: frozen
+scientific_question: "Under a fixed total compute envelope, how does shifting compute between training and inference affect held-out correctness?"
+model:
+  family: controlled-causal-lm
+  model_id: TO_BE_FROZEN_BEFORE_EXECUTION
+  tokenizer_id: TO_BE_FROZEN_BEFORE_EXECUTION
+  parameter_count: null
+  initialization_id: TO_BE_FROZEN_BEFORE_EXECUTION
+  objective: causal_language_modeling
+  precision: bf16
+benchmark:
+  id: humaneval-stratified-100-v1
+  manifest_blob_sha: 9c3d-frozen-project3-manifest
+  source_commit: 6d43fb980f9fee3c892a914eda09951f772ad10d
+  task_count: 100
+  visible_hidden_policy: deterministic_assertion_split
+  contamination_policy: document provenance; do not claim exact absence
+training:
+  dataset_id: TO_BE_FROZEN_BEFORE_EXECUTION
+  dataset_version: TO_BE_FROZEN_BEFORE_EXECUTION
+  dataset_sha256: null
+  optimizer: AdamW
+  learning_rate: null
+  scheduler: TO_BE_FROZEN_BEFORE_EXECUTION
+  batch_size: null
+  gradient_accumulation: null
+  precision: bf16
+  max_steps: 2000
+  max_training_tokens: 2000000
+  max_training_flops: 100000000000000000
+  max_wall_seconds: 86400
+inference:
+  max_model_calls: 16
+  max_input_tokens: 16000
+  max_output_tokens: 16000
+  max_candidates: 8
+  max_reasoning_rounds: 4
+  max_verifier_calls: 0
+  max_wall_seconds: 3600
+allocation_matrix:
+  - {condition_id: A0, training_fraction: 0.00, inference_fraction: 1.00, training_budget_steps: 0, inference_model_calls: 16}
+  - {condition_id: A1, training_fraction: 0.25, inference_fraction: 0.75, training_budget_steps: 500, inference_model_calls: 12}
+  - {condition_id: A2, training_fraction: 0.50, inference_fraction: 0.50, training_budget_steps: 1000, inference_model_calls: 8}
+  - {condition_id: A3, training_fraction: 0.75, inference_fraction: 0.25, training_budget_steps: 1500, inference_model_calls: 4}
+  - {condition_id: A4, training_fraction: 1.00, inference_fraction: 0.00, training_budget_steps: 2000, inference_model_calls: 1}
+seeds: [42, 43, 44]
+evaluation:
+  final_evaluator: independent_hidden_executor_v1
+  hidden_results_visible_to_strategy: false
+  final_results_used_for_selection: false
+  bootstrap_resamples: 10000
+  confidence_level: 0.95
+execution:
+  validation_only: false
+  allow_mock: false
+  require_credentials: true
+  require_docker: true
+  fail_closed: true
