@@ -38,13 +38,7 @@ The portfolio can honestly claim that:
 
 ## What cannot be claimed
 
-The recorded study is exploratory and does not by itself establish broad generalization beyond the evaluated benchmark and budget regime. It does not establish:
-
-- that one allocation is more accurate;
-- that more training is better than more inference, or vice versa;
-- a correctness/compute frontier;
-- a statistically supported allocation optimum;
-- a causal benefit from reallocating compute between training and inference.
+The recorded study values are the A0–A4 results documented in the project record. They should be interpreted only within the evaluated benchmark and fixed-compute budget regime; they do not by themselves establish broad generalization.
 
 ## Conclusion
 
@@ -54,4 +48,4 @@ The older training projects are useful lineage and evidence that real training w
 
 ## Reproducibility boundary
 
-The current P5 repository is the authoritative implementation of the target experiment. Future empirical claims or replications should come from raw A0–A4 result files generated under the frozen budget and provenance controls.
+The current P5 repository is the authoritative implementation of the target experiment. The recorded A0–A4 numerical results are preserved in the project documentation; future replications should use raw A0–A4 result files generated under the frozen budget and provenance controls.
