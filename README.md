@@ -312,13 +312,13 @@ Hidden-Test Accuracy
 
 The recorded study shows that, in this particular budget regime, increasing the training share coincided with lower hidden-test accuracy as inference-time candidate coverage decreased. This is a benchmark-bounded empirical observation, not a universal allocation law.
 
-This is a hypothesis to be tested, not a conclusion.
+The broader allocation hypothesis remains benchmark-specific; the statements above describe what the completed run measured and do not establish a universal compute-allocation law.
 
 ---
 
-# 10. What the Real Run Can Falsify
+# 10. What Future Replication Could Falsify
 
-The strongest value of this projection is that it can fail.
+The strongest value of the preregistered projection is that it can be falsified by an independent replication.
 
 Examples:
 
