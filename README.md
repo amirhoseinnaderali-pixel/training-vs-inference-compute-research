@@ -4,7 +4,7 @@
 
 **COMPLETED — RECORDED EMPIRICAL STUDY**
 
-The hardened A0–A4 instrument was implemented, audited, and used for the completed EXP-001 study. Earlier training/fine-tuning repositories remain lineage evidence and are not substituted for the P5 allocation experiment.
+The hardened A0–A4 instrument was implemented, internally audited, and used for the completed EXP-001 study. Earlier training/fine-tuning repositories remain lineage evidence and are not substituted for the P5 allocation experiment.
 
 Project 5 studies how a fixed compute allowance is allocated between **training** and **inference**.
 
@@ -378,7 +378,7 @@ The empirical allocation results are reported from the completed real task-level
 
 # 13. Current Status
 
-**PROJECT 5 IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / EXECUTED / RESULTS RECORDED**
+**PROJECT 5 IMPLEMENTED / VALIDATED / INTERNALLY AUDITED / EXECUTED / RESULTS RECORDED**
 
 The raw task-level EXP-001 archive is not committed to the public result tree; the recorded study summary and numerical results are reported above.
 
@@ -468,6 +468,6 @@ The projection must not be rewritten after the result is known merely to make th
 
 ## Research status
 
-**IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / EXECUTED / RESULTS RECORDED**
+**IMPLEMENTED / VALIDATED / INTERNALLY AUDITED / EXECUTED / RESULTS RECORDED**
 
 See [docs/research_report.md](docs/research_report.md) for the historical evidence audit and conclusion.
