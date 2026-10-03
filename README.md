@@ -8,6 +8,8 @@ The hardened A0–A4 instrument was implemented, internally audited, and used fo
 
 Project 5 studies how a fixed compute allowance is allocated between **training** and **inference**.
 
+**Evidence at a glance.** The completed study records hidden-test accuracy of **92%, 91%, 89%, 85%, and 68%** for A0–A4. The five conditions use the same nominal total compute target while changing the training/inference allocation. These measurements are benchmark- and model-specific; they are not a claim that inference is universally preferable to training.
+
 ---
 
 # EXP-001 — Training More or Reasoning More?
@@ -29,6 +31,12 @@ The frozen experiment compares five allocations:
 The primary outcome is the task-level probability that **at least one generated candidate passes the independent hidden evaluator** after candidate generation is complete.
 
 ---
+
+## Related work and scope
+
+The research question is directly related to prior work on test-time compute and compute allocation, including [Scaling LLM Test-Time Compute Optimally](https://arxiv.org/abs/2408.03314). The project does not claim to introduce the general idea of trading training compute against inference compute; its contribution is the recorded A0–A4 allocation comparison under its specific frozen model, benchmark, and compute accounting.
+
+**Benchmark/model boundary.** The completed study uses **Qwen/Qwen2.5-Coder-1.5B** on **HumanEval-stratified-100-v1**. The result should therefore be interpreted as a small-model, benchmark-specific allocation study. It does not establish scaling behavior for larger models or other domains.
 
 # Recorded Experimental Results
 
