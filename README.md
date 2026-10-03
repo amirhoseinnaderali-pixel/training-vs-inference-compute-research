@@ -6,6 +6,8 @@
 
 The hardened A0–A4 instrument was implemented, internally audited, and used for the completed EXP-001 study. Earlier training/fine-tuning repositories remain lineage evidence and are not substituted for the P5 allocation experiment.
 
+**Portfolio role.** The compute-allocation study: it asks how one fixed total compute envelope should be divided between training and inference, unlike the inference-only strategy comparisons in the other reasoning repositories.
+
 Project 5 studies how a fixed compute allowance is allocated between **training** and **inference**.
 
 **Evidence at a glance.** The completed study records hidden-test accuracy of **92%, 91%, 89%, 85%, and 68%** for A0–A4. The five conditions use the same nominal total compute target while changing the training/inference allocation. These measurements are benchmark- and model-specific; they are not a claim that inference is universally preferable to training.
