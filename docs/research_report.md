@@ -12,7 +12,7 @@ The current repository contains a hardened controlled instrument and the recorde
 
 ## Evidence audit
 
-The current project defines a fixed allocation matrix (A0–A4) and a connected real-training/real-inference execution architecture. The repository status is explicitly: PROJECT 5 IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / EXECUTED / RESULTS RECORDED.
+The current project defines a fixed allocation matrix (A0–A4) and a connected real-training/real-inference execution architecture. The repository status is explicitly: PROJECT 5 IMPLEMENTED / VALIDATED / INTERNALLY AUDITED / EXECUTED / RESULTS RECORDED.
 
 The recorded EXP-001 empirical result set is used for the study.
 
@@ -34,7 +34,7 @@ The portfolio can honestly claim that:
 - A0–A4 allocation conditions were implemented;
 - real training and real inference adapters were integrated;
 - benchmark/provenance/statistical safeguards were added;
-- the execution architecture was validated and audited.
+- the execution architecture was validated and internally audited.
 
 ## What cannot be claimed
 
