@@ -102,7 +102,7 @@ The current frozen configuration specifies:
 | Max model calls | **16** |
 | Primary outcome | **Any candidate passes hidden evaluator** |
 
-The benchmark is therefore **not a GSM8K experiment**. The pre-execution numbers above are retained as projections, but the task-level claims are now tied to the actual frozen HumanEval-based protocol.
+The benchmark is therefore **not a GSM8K experiment**. Earlier pre-execution projections are retained only where explicitly labeled as preregistered predictions; the accuracy values in the recorded-results sections are empirical measurements from the completed HumanEval-based protocol.
 
 ---
 
@@ -290,7 +290,7 @@ The model is:
 
 > **Qwen/Qwen2.5-Coder-1.5B**
 
-This README therefore uses the current frozen configuration for factual experiment descriptions while keeping the stated accuracy numbers as **pre-data projections**.
+This README uses the current frozen configuration for factual experiment descriptions. The accuracy table is **empirical**; the probability statements in Section 6 and the scorecard in Section 11 remain preregistered/pre-data predictions.
 
 ---
 
@@ -310,7 +310,7 @@ Hidden-Test Accuracy
     10%    30%    50%    70%    90%
 ```
 
-Equivalently, increasing the training share is expected to reduce inference-time candidate coverage enough to outweigh the modest adaptation benefit in this particular budget regime.
+The recorded study shows that, in this particular budget regime, increasing the training share coincided with lower hidden-test accuracy as inference-time candidate coverage decreased. This is a benchmark-bounded empirical observation, not a universal allocation law.
 
 This is a hypothesis to be tested, not a conclusion.
 
@@ -344,9 +344,9 @@ The first interpretation should be an implementation / provenance audit, not imm
 
 ---
 
-# 11. Pre-Execution Scorecard
+# 11. Preregistered Scorecard (Preserved)
 
-Commit this scorecard **before seeing empirical results**.
+This scorecard is preserved as the **pre-registration**, i.e. the criteria defined before the recorded empirical results were observed.
 
 - [ ] Every condition's measured center is reported with its observed uncertainty range
 - [ ] A4 is the worst condition
@@ -380,7 +380,7 @@ The empirical allocation results are reported from the completed real task-level
 
 **PROJECT 5 IMPLEMENTED / VALIDATED / SCIENTIFICALLY AUDITED / EXECUTED / RESULTS RECORDED**
 
-No raw EXP-001 result set is currently reported.
+The raw task-level EXP-001 archive is not committed to the public result tree; the recorded study summary and numerical results are reported above.
 
 What exists today is:
 
@@ -390,7 +390,7 @@ What exists today is:
 - fixed seeds;
 - compute accounting;
 - audit and validation safeguards;
-- an explicit **pre-execution prediction** that can later be compared against measured results.
+- an explicit **pre-execution prediction** preserved for comparison against the recorded measured results above.
 
 ---
 
