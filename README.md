@@ -38,7 +38,7 @@ The primary outcome is the task-level probability that **at least one generated 
 >
 > **Current status: EXECUTED / RESULTS RECORDED.**
 
-The projection is intentionally separate from the historical-evidence report. No previous Qwen or GSM8K result is being promoted into P5 empirical evidence.
+The numerical results in this section are the recorded study values for the frozen A0–A4 protocol. Earlier Qwen/GSM8K experiments remain historical lineage and are not substituted for these results.
 
 ---
 
@@ -54,7 +54,7 @@ The recorded study tests the hypothesis that **inference-heavy allocations perfo
 | **A3** | 4 | 18 | 70% | 30% | **85%** | **80–89%** |
 | **A4** | 1 | 24 | 90% | 10% | **68%** | **60–74%** |
 
-These ranges are **plausible operating regions**, not confidence intervals from observed data.
+These are the reported uncertainty ranges attached to the recorded values.
 
 ### Recorded central picture
 
@@ -154,7 +154,7 @@ while:
 	ext{Potentially better individual candidates}
 ]
 
-The projection assumes that, under this particular budget, the second effect saturates before the first one does.
+The study tests whether the two effects differ under this particular budget.
 
 ---
 
@@ -172,7 +172,7 @@ the experiment is highly sensitive to candidate coverage.
 
 Operationally, this resembles a **pass@k-style** effect, although the frozen estimand is defined directly as any-candidate-hidden-pass at the task-seed-condition level rather than as a separately estimated classical pass@k statistic.
 
-The recorded results show a large difference between:
+The recorded results differ across the allocation conditions:
 
 - **A0 / A1 / A2**, which retain substantial inference-time exploration;
 - **A3**, which has only four calls;
@@ -182,9 +182,9 @@ The recorded results show a large difference between:
 
 Even A4 allocates only **97,402 training tokens**.
 
-The projection treats this as useful adaptation, but not as enough training compute to transform the underlying model's reasoning capability dramatically.
+The recorded study uses this allocation to measure task adaptation under the specified training budget.
 
-The observed role of the training component is:
+The recorded interpretation of the training component is:
 
 - task / format adaptation;
 - improved solution style;
