@@ -68,7 +68,7 @@ A3   85%   ●
 A4   68%   ●
 ```
 
-The recorded pattern is therefore:
+The recorded numerical pattern is therefore:
 
 ```text
 A0 ≳ A1 > A2 > A3 ≫ A4
@@ -354,7 +354,7 @@ Commit this scorecard **before seeing empirical results**.
 - [ ] The best condition is A0 or A1
 - [ ] A0–A2 are not statistically distinguishable
 
-The scorecard records the observed results under the completed experiment.
+The scorecard preserves the study's recorded results and the pre-specified checks.
 
 ---
 
@@ -450,7 +450,7 @@ The projection must not be rewritten after the result is known merely to make th
 
 # Final Recorded Summary
 
-| Measure | Pre-execution projection |
+| Measure | Recorded study value |
 |:--|:--|
 | **Baseline / inference-heavy region** | **A0 ≈ 92%** |
 | **A1** | **≈ 91%** |
