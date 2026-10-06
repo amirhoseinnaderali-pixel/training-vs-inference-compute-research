@@ -1,0 +1,13 @@
+{
+  "benchmark_id": "humaneval-stratified-100-v1",
+  "version": "1.0.0",
+  "task_count": 100,
+  "source": "openai/human-eval",
+  "source_commit": "6d43fb980f9fee3c892a914eda09951f772ad10d",
+  "project3_manifest_blob_sha": "1837f72545998ffd31a36f5e5a5952363d9f4718",
+  "selection_policy": "stratified_source_order",
+  "evaluation_policy": "deterministic assertion split; hidden assertions never enter strategy context",
+  "contamination_policy": "provenance and overlap documentation required; exact zero contamination is not claimed",
+  "materialized_path": "benchmarks/programming/exp001_v1/tasks.jsonl",
+  "materialization_required_before_real_execution": true
+}

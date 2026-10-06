@@ -1,0 +1,13 @@
+experiment_id: VALIDATION-001
+status: validation_only
+scientific_question: validation
+model: {model_id: mock-tiny, tokenizer_id: mock-tiny, parameter_count: 1000, initialization_id: synthetic, objective: test, precision: fp32}
+benchmark: {id: synthetic-4-v1, task_count: 4}
+compute_budget: {total_target_estimated_flops: 1000000, training_flops_formula: "6*N*tokens", inference_flops_formula: "2*N*tokens"}
+training: {max_steps: 4, max_training_tokens: 128, max_training_flops: 1000000, batch_size: 1, gradient_accumulation: 1, sequence_length: 32, learning_rate: 0.001, dataset_manifest_sha256: synthetic}
+inference: {max_model_calls: 4, max_input_tokens_per_call: 128, max_output_tokens_per_call: 128, max_candidates: 4, max_reasoning_rounds: 2, max_verifier_calls: 0, max_wall_seconds: 999}
+allocation_matrix:
+  - {condition_id: V0, training_fraction: 0.5, inference_fraction: 0.5, training_budget_steps: 4, training_tokens: 64, training_estimated_flops: 384000, inference_tokens: 250, inference_estimated_flops: 500000, inference_model_calls: 4}
+seeds: [42]
+evaluation: {final_evaluator: mock, hidden_results_visible_to_strategy: false, final_results_used_for_selection: false, bootstrap_resamples: 10, confidence_level: 0.95}
+execution: {validation_only: true, allow_mock: true, require_credentials: false, require_docker: false, require_cuda: false, fail_closed: true}

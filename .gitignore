@@ -1,0 +1,8 @@
+__pycache__/
+.pytest_cache/
+.venv/
+results/raw/*
+results/tables/*
+results/validation/*
+!results/raw/.gitkeep
+!results/validation/.gitkeep

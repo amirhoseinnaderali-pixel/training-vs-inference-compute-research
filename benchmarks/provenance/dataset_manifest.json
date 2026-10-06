@@ -1,0 +1,12 @@
+{
+  "dataset_id": "open-r1/codeforces-cots",
+  "config": "solutions_py_decontaminated",
+  "revision": "387653d830af3c298723ce21826c39877b50b783",
+  "split": "train",
+  "files": [
+    {"path":"train-00000-of-00003.parquet","sha256":"1bc738abc0ac48f25618685992b25912a28115268685cdfd27ec600edfe3c9e6","size":153679441},
+    {"path":"train-00001-of-00003.parquet","sha256":"db1fe217ff070106f0b00813636f8254cebce68309873004fea058ace91eb13e","size":179404164},
+    {"path":"train-00002-of-00003.parquet","sha256":"20d2ef9f43099bd090798e74c1851ce588ac7a1e3fa47fd604233b97e224229c","size":167098481}
+  ],
+  "sha256": "8108fd0f14d1d4045fcd85e86053ae78d91fb7ff24a38982f7363101d901f672"
+}

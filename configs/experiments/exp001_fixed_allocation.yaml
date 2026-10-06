@@ -1,0 +1,69 @@
+experiment_id: EXP-001
+status: frozen
+scientific_question: "Under a fixed total compute envelope, how does shifting compute between training and inference affect held-out correctness?"
+model:
+  family: controlled-causal-lm
+  model_id: Qwen/Qwen2.5-Coder-1.5B
+  tokenizer_id: Qwen/Qwen2.5-Coder-1.5B
+  parameter_count: 1540000000
+  initialization_id: hf-revision-df3ce67
+  objective: causal_language_modeling
+  precision: bf16
+benchmark:
+  id: humaneval-stratified-100-v1
+  manifest_blob_sha: 1837f72545998ffd31a36f5e5a5952363d9f4718
+  source_commit: 6d43fb980f9fee3c892a914eda09951f772ad10d
+  task_count: 100
+  visible_hidden_policy: deterministic_assertion_split
+  contamination_policy: document provenance; do not claim exact absence
+compute_budget:
+  total_target_estimated_flops: 1000000000000000
+  training_flops_formula: "6 * parameter_count * training_tokens"
+  inference_flops_formula: "2 * parameter_count * inference_tokens"
+  accounting_note: "Formulas are pre-registered budget estimates; measured FLOPs remain separate and are never replaced by this estimate."
+training:
+  dataset_id: open-r1/codeforces-cots
+  dataset_version: solutions_py_decontaminated@387653d830af3c298723ce21826c39877b50b783
+  dataset_manifest_sha256: 8108fd0f14d1d4045fcd85e86053ae78d91fb7ff24a38982f7363101d901f672
+  optimizer: AdamW
+  learning_rate: 0.00002
+  scheduler: cosine
+  batch_size: 1
+  gradient_accumulation: 8
+  precision: bf16
+  sequence_length: 1024
+  max_steps: 24
+  max_training_tokens: 100000
+  max_training_flops: 1000000000000000
+  max_wall_seconds: 86400
+inference:
+  max_model_calls: 16
+  max_input_tokens_per_call: 16000
+  max_output_tokens_per_call: 32768
+  max_candidates: 16
+  max_reasoning_rounds: 16
+  max_verifier_calls: 0
+  max_wall_seconds: 3600
+allocation_matrix:
+  - {condition_id: A0, training_fraction: 0.10, inference_fraction: 0.90, training_budget_steps: 3, training_tokens: 10822, training_estimated_flops: 99995280000000, inference_tokens: 292207, inference_estimated_flops: 899997560000000, inference_model_calls: 16}
+  - {condition_id: A1, training_fraction: 0.30, inference_fraction: 0.70, training_budget_steps: 8, training_tokens: 32467, training_estimated_flops: 299995080000000, inference_tokens: 227272, inference_estimated_flops: 699997760000000, inference_model_calls: 12}
+  - {condition_id: A2, training_fraction: 0.50, inference_fraction: 0.50, training_budget_steps: 13, training_tokens: 54112, training_estimated_flops: 499994880000000, inference_tokens: 162337, inference_estimated_flops: 499997960000000, inference_model_calls: 8}
+  - {condition_id: A3, training_fraction: 0.70, inference_fraction: 0.30, training_budget_steps: 18, training_tokens: 75757, training_estimated_flops: 699994680000000, inference_tokens: 97402, inference_estimated_flops: 299998160000000, inference_model_calls: 4}
+  - {condition_id: A4, training_fraction: 0.90, inference_fraction: 0.10, training_budget_steps: 24, training_tokens: 97402, training_estimated_flops: 899994480000000, inference_tokens: 32467, inference_estimated_flops: 99998360000000, inference_model_calls: 1}
+seeds: [42, 43, 44]
+evaluation:
+  primary_outcome:
+    estimand: any_candidate_passes_hidden
+    definition: "For each task-seed-condition unit, primary correctness is 1 iff at least one generated candidate passes the independent hidden evaluator after candidate generation is complete."
+  final_evaluator: independent_hidden_executor_v1
+  hidden_results_visible_to_strategy: false
+  final_results_used_for_selection: false
+  bootstrap_resamples: 10000
+  confidence_level: 0.95
+execution:
+  validation_only: false
+  allow_mock: false
+  require_credentials: false
+  require_docker: true
+  require_cuda: true
+  fail_closed: true

@@ -1,0 +1,19 @@
+name: Project 5 validation
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[test]"
+      - run: pytest -q
+      - run: python scripts/validate_config.py
+      - run: python scripts/run_validation.py
+      - run: python scripts/scientific_audit.py
