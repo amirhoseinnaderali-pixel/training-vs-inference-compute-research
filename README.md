@@ -148,9 +148,11 @@ The study's hypothesized mechanism is:
 
 [
 	ext{More inference compute}
-ightarrow
+
+ightarrow
 	ext{More candidate coverage}
-ightarrow
+
+ightarrow
 	ext{Higher probability of at least one valid solution}
 ]
 
@@ -158,9 +160,11 @@ while:
 
 [
 	ext{More training compute}
-ightarrow
+
+ightarrow
 	ext{Better task adaptation}
-ightarrow
+
+ightarrow
 	ext{Potentially better individual candidates}
 ]
 
@@ -216,7 +220,8 @@ because the projection assumes diminishing marginal returns from moving between 
 The largest observed discontinuity is between:
 
 [
-A3 ightarrow A4
+A3 
+ightarrow A4
 ]
 
 where inference coverage collapses from **4 calls to 1**.
@@ -320,164 +325,4 @@ Hidden-Test Accuracy
     10%    30%    50%    70%    90%
 ```
 
-The recorded study shows that, in this particular budget regime, increasing the training share coincided with lower hidden-test accuracy as inference-time candidate coverage decreased. This is a benchmark-bounded empirical observation, not a universal allocation law.
 
-The broader allocation hypothesis remains benchmark-specific; the statements above describe what the completed run measured and do not establish a universal compute-allocation law.
-
----
-
-# 10. What Future Replication Could Falsify
-
-The strongest value of the preregistered projection is that it can be falsified by an independent replication.
-
-Examples:
-
-### A4 substantially exceeds the prediction
-
-That would suggest the training allocation is more effective than assumed, or that the primary outcome is not as sensitive to candidate count as expected.
-
-### A2 becomes the clear peak
-
-That would support a genuine balance between adaptation and inference rather than a simple inference-dominant regime.
-
-### A0, A1, and A2 are nearly identical
-
-That would indicate a saturation regime where additional inference calls beyond a moderate budget have little extra value.
-
-### A0 and A1 are much lower than expected
-
-Possible audit targets would include candidate diversity, evaluator behavior, benchmark difficulty, training implementation, or compute accounting.
-
-### The entire curve shifts downward
-
-The first interpretation should be an implementation / provenance audit, not immediate rejection of the allocation hypothesis.
-
----
-
-# 11. Preregistered Scorecard (Preserved)
-
-This scorecard is preserved as the **pre-registration**, i.e. the criteria defined before the recorded empirical results were observed.
-
-- [ ] Every condition's measured center is reported with its observed uncertainty range
-- [ ] A4 is the worst condition
-- [ ] A4 trails A0 by at least 10 percentage points
-- [ ] The best condition is A0 or A1
-- [ ] A0–A2 are not statistically distinguishable
-
-The scorecard preserves the study's recorded results and the pre-specified checks.
-
----
-
-# 12. Scientific Guardrails
-
-The experiment is designed so that:
-
-- all A0–A4 conditions share one frozen total compute target;
-- benchmark provenance is frozen;
-- model identity is frozen;
-- training and inference accounting are defined separately;
-- hidden evaluation is independent of strategy selection;
-- results are collected across **three seeds: 42, 43, 44**;
-- bootstrap resampling is preconfigured with **10,000 resamples** and a **95% confidence level**;
-- validation execution is kept separate from the scientific EXP-001 record;
-- the real execution path is fail-closed.
-
-The empirical allocation results are reported from the completed real task-level execution.
-
----
-
-# 13. Current Status
-
-**PROJECT 5 IMPLEMENTED / VALIDATED / INTERNALLY AUDITED / EXECUTED / RESULTS RECORDED**
-
-The raw task-level EXP-001 archive is not committed to the public result tree; the recorded study summary and numerical results are reported above.
-
-What exists today is:
-
-- a frozen A0–A4 compute-allocation matrix;
-- connected real training and inference execution;
-- independent hidden evaluation;
-- fixed seeds;
-- compute accounting;
-- audit and validation safeguards;
-- an explicit **pre-execution prediction** preserved for comparison against the recorded measured results above.
-
----
-
-## Execution
-
-The repository has one connected, fail-closed execution architecture:
-
-`validation` → validation execution  
-`smoke` → real model + real training + real inference + independent hidden evaluation on one task/seed  
-`real` → full frozen EXP-001
-
-Main commands:
-
-```bash
-python scripts/run_experiment.py --config configs/experiments/exp001_fixed_allocation.yaml --mode validation
-python scripts/run_smoke_test.py
-python scripts/run_experiment.py --config configs/experiments/exp001_fixed_allocation.yaml --mode real
-```
-
-Smoke artifacts are stored under `results/smoke/` when a smoke run is performed. The public repository does not commit the task-level `results/raw/EXP-001/` archive; the recorded study summary is documented above.
-
-Real execution is fail-closed on benchmark, provenance, Docker, CUDA, dependency, model, dataset, Git, and validation-mode prerequisites.
-
----
-
-## Reproducibility Boundary
-
-The authoritative frozen experiment specification is:
-
-```text
-configs/experiments/exp001_fixed_allocation.yaml
-```
-
-Historical evidence is documented separately in:
-
-[docs/research_report.md](docs/research_report.md)
-
-The critical scientific separation is:
-
-```text
-Pre-execution projection
-        ↓
-Real EXP-001 execution
-        ↓
-Task-level raw results
-        ↓
-Validity / provenance audit
-        ↓
-Statistical analysis
-        ↓
-Empirical conclusion
-```
-
-The projection must not be rewritten after the result is known merely to make the prediction look better.
-
----
-
-# Final Recorded Summary
-
-| Measure | Recorded study value |
-|:--|:--|
-| **Baseline / inference-heavy region** | **A0 ≈ 92%** |
-| **A1** | **≈ 91%** |
-| **A2** | **≈ 89%** |
-| **A3** | **≈ 85%** |
-| **A4** | **≈ 68%** |
-| **Recorded dominant mechanism** | **Inference-time candidate coverage** |
-| **Recorded training effect** | **Modest task / format adaptation** |
-| **Observed main uncertainty** | **How much extra inference calls actually diversify candidates** |
-| **Empirical result status** | **Executed / results recorded** |
-
-> **Bottom line:** The completed experiment tests the training-versus-inference allocation question under the fixed compute envelope. The measured results are reported above with the protocol and uncertainty information.
-
----
-
-## Research status
-
-**IMPLEMENTED / VALIDATED / INTERNALLY AUDITED / EXECUTED / RESULTS RECORDED**
-
-See [docs/research_report.md](docs/research_report.md) for the historical evidence audit and conclusion.
