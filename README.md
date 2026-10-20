@@ -16,7 +16,7 @@ Under the same **estimated total compute budget**, does spending more on trainin
 | Benchmark | `HumanEval-stratified-100-v1` (100 Python tasks) |
 | Training data | `open-r1/codeforces-cots` |
 | Fine-tuning | Full fine-tuning; causal language modeling with AdamW |
-| Training settings | BF16, learning rate `2e-5`, sequence length 1024, batch size 1 |
+| Training settings | FP16,FSDP, learning rate `2e-5`, sequence length 1024, batch size 1 |
 | Seeds | 42, 43, 44 |
 | Compute target | `1e15` **estimated FLOPs** per task × seed × condition |
 
